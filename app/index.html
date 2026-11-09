@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANDOVER — build your pack</title>
+<meta name="description" content="Map your folders in your browser and build a HANDOVER pack for your next AI. Nothing is uploaded.">
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/handover.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-mark"><b>HANDOVER</b> <span>by Diana Simpson Hernandez</span></a>
+    <ul class="nav-links">
+      <li><a href="/#how">How it works</a></li>
+      <li><a href="/#privacy">Privacy</a></li>
+      <li><a href="/#price">Price</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="app-head">
+    <div class="eyebrow">HANDOVER · app</div>
+    <h1>Build your <em>handover</em> pack</h1>
+    <p>Choose the folders your work lives in. HANDOVER maps them here in your browser, you choose what your AI may see, and you get one pack to paste into the AI you are moving to.</p>
+    <div class="stepper" id="stepper"><span data-s="1" class="on">01 Choose</span><span data-s="2">02 Review</span><span data-s="3">03 Pack</span></div>
+  </header>
+
+  <!-- 1. choose -->
+  <section class="card" id="s1">
+    <h2>Choose a folder</h2>
+    <p>Pick the top folder of your documents. Sub-folders are included. Word, PDF, web pages, Markdown and text are read; everything else is listed.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="picker" webkitdirectory directory multiple disabled>
+      <div class="row" style="justify-content:center">
+        <span class="btn btn-primary" id="pickBtn" aria-disabled="true">Choose folder <span class="arrow">→</span></span>
+      </div>
+      <p class="hx-note" style="margin-top:0.9rem" id="engineState">Loading the engine…</p>
+    </label>
+    <div class="privacy-line">Your files never leave this computer. They are read inside this tab and discarded when you close it.</div>
+    <div class="progress hidden" id="prog"><i></i></div>
+    <div class="status" id="status"></div>
+  </section>
+
+  <!-- 2. review -->
+  <section class="card hidden" id="s2">
+    <h2>Review what your AI will see</h2>
+    <p>Everything is ticked. Untick anything private, leave out whole folders, and add names or terms to blank out.</p>
+    <div class="kpis" id="kpis"></div>
+    <div class="row" style="margin:0.5rem 0 1rem"><button class="btn" id="mapBtn" type="button">View the map</button></div>
+    <iframe class="map hidden" id="map" title="Map of your folder"></iframe>
+
+    <div class="row" style="align-items:flex-start;margin-top:1rem">
+      <div class="field">
+        <span class="lbl">Leave out folders</span>
+        <div class="chips" id="folders"></div>
+      </div>
+    </div>
+    <div class="row" style="align-items:flex-start;margin-top:1rem">
+      <div class="field">
+        <label for="terms">Blank out these names or terms (one per line)</label>
+        <textarea id="terms" placeholder="e.g. a client's name&#10;a project code"></textarea>
+      </div>
+      <div class="field" style="gap:0.6rem">
+        <span class="lbl">Automatic</span>
+        <label class="check"><input type="checkbox" id="redEmails" checked> Blank out email addresses</label>
+        <label class="check"><input type="checkbox" id="redPhones" checked> Blank out phone numbers</label>
+      </div>
+    </div>
+    <div id="sections" style="margin-top:1rem"></div>
+    <div class="row" style="margin-top:1.25rem">
+      <div class="field" style="flex:0 1 260px">
+        <label for="target">The AI you are moving to</label>
+        <select id="target"></select>
+      </div>
+      <div class="field" style="flex:0 1 260px">
+        <label for="mode">If the pack is too big</label>
+        <select id="mode"><option value="fit">Keep the most important parts</option><option value="split">Split it into parts</option></select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:1.25rem"><button class="btn btn-primary" id="buildBtn" type="button">Build my pack <span class="arrow">→</span></button><span class="status" id="buildStatus"></span></div>
+  </section>
+
+  <!-- 3. pack -->
+  <section class="card hidden" id="s3">
+    <h2>Your HANDOVER pack</h2>
+    <p id="packSummary"></p>
+    <div id="parts"></div>
+    <div class="unlock hidden" id="unlock">
+      <h3>Unlock the full pack</h3>
+      <p>The free scan shows your map and a preview. Unlock adds the HANDOVER instructions that tell your AI how to write your blueprint and its standing instructions file, and gives you the full pack.</p>
+      <div class="row" style="margin-top:1rem">
+        <a class="btn btn-primary" id="buyBtn" href="#" target="_blank" rel="noopener">Unlock · <span id="price"></span></a>
+      </div>
+      <div class="row" style="margin-top:1rem">
+        <div class="field" style="flex:1 1 240px"><label for="licence" style="color:rgba(255,255,255,.7)">Already bought? Licence key</label><input type="text" id="licence" placeholder="HX-XXXX-XXXX" autocomplete="off"></div>
+        <button class="btn" id="licenceBtn" type="button" style="align-self:flex-end">Apply</button>
+      </div>
+      <p class="status" id="licenceStatus" style="color:rgba(255,255,255,.7)"></p>
+    </div>
+    <div class="next hidden" id="next">
+      <h3 style="margin-top:1.5rem">What to do now</h3>
+      <ol>
+        <li>Open a new chat in the AI you are moving to.</li>
+        <li>Paste the pack (part 1 first, if there are several). Wait for each part to be acknowledged.</li>
+        <li>Your AI replies with two documents: <code>KNOWLEDGE_BLUEPRINT.md</code> and a standing instructions file. Save both.</li>
+        <li>Put the instructions file where your AI reads standing instructions (a Project's instructions, or the file named in it). Keep the blueprint beside your documents.</li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-meta" style="margin-top:0;flex-wrap:wrap;gap:0.75rem">
+      <span>HANDOVER · © 2026 Dish Creative Ltd</span>
+      <span><a href="https://dianasimpsonhernandez.com/">dianasimpsonhernandez.com</a></span>
+    </div>
+  </div>
+</footer>
+<script src="/js/config.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
