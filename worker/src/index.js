@@ -12,14 +12,12 @@
  * KV stores licence -> { session, created, revoked }. No email, no name: Stripe holds the customer record.
  *
  * Secrets (wrangler secret put): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, LICENCE_SECRET
- * Vars (wrangler.toml):          REQUIRE_TERMS, STRIPE_API_VERSION, PRODUCT_ID (uses its default price) or PRICE_ID, PAYMENT_LINK_ID, SITE_ORIGIN, ALLOWED_ORIGINS, AUTOMATIC_TAX, ALLOW_PROMOTION_CODES
+ * Vars (wrangler.toml):          MANAGED_PAYMENTS, REQUIRE_TERMS, STRIPE_API_VERSION, PRODUCT_ID (uses its default price) or PRICE_ID, PAYMENT_LINK_ID, SITE_ORIGIN, ALLOWED_ORIGINS, AUTOMATIC_TAX, ALLOW_PROMOTION_CODES
  * KV binding:                    LICENCES
  */
 import fragments from "../../private/fragments.json";
 
 const STRIPE = "https://api.stripe.com/v1";
-export const TERMS_CONSENT = "I agree to the [Terms of sale](https://handover.dianasimpsonhernandez.com/terms/). " +
-  "I ask for my licence key to be supplied straight away, and I understand that I lose my 14-day right to cancel once it is delivered.";
 const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no 0/O/1/I/L
 
 // ------------------------------------------------------------------------------------------------ helpers
@@ -123,22 +121,37 @@ export async function resolvePrice(env) {
 }
 
 async function createSession(req, env) {
+  // UK Consumer Contracts Regs 2013 reg 37: the checkout page collects express consent + the 14-day waiver acknowledgement
+  // (a required tick box) before the form loads; we stamp it on the session and payment as the record.
+  let body = {};
+  try { body = await req.json(); } catch (e) { /* no body */ }
+  const waiver = body && body.waiver === true;
+  const terms = String(body && body.terms || "").slice(0, 20).replace(/[^0-9A-Za-z.-]/g, "");
+  if (env.REQUIRE_TERMS === "true" && !waiver) return json({ error: "terms_not_accepted" }, 400, cors(req, env));
+  // MANAGED_PAYMENTS = "true": Stripe (via Link) is merchant of record and handles VAT/sales tax worldwide.
+  // Managed Payments supports Checkout's hosted or embedded page, not the "form" components, so the buyer is
+  // sent to Stripe's hosted page and comes back to /checkout/return/. Otherwise the embedded form is used.
+  const managed = env.MANAGED_PAYMENTS === "true";
+  const returnTo = `${env.SITE_ORIGIN}/checkout/return/?session_id={CHECKOUT_SESSION_ID}`;
   const form = {
-    "line_items[0][price]": await resolvePrice(env), "line_items[0][quantity]": "1", mode: "payment", ui_mode: "form",
-    return_url: `${env.SITE_ORIGIN}/checkout/return/?session_id={CHECKOUT_SESSION_ID}`,
-    integration_identifier: "handover_form_v1", "metadata[product]": "handover",
-    "payment_intent_data[metadata][product]": "handover",
+    "line_items[0][price]": await resolvePrice(env), "line_items[0][quantity]": "1", mode: "payment",
+    "metadata[product]": "handover", "payment_intent_data[metadata][product]": "handover",
   };
-  if (env.AUTOMATIC_TAX === "true") form["automatic_tax[enabled]"] = "true";
+  if (managed) {
+    Object.assign(form, { ui_mode: "hosted_page", success_url: returnTo, cancel_url: `${env.SITE_ORIGIN}/checkout/`,
+                          "managed_payments[enabled]": "true", integration_identifier: "handover_hosted_v1" });
+  } else {
+    Object.assign(form, { ui_mode: "form", return_url: returnTo, integration_identifier: "handover_form_v1" });
+    if (env.AUTOMATIC_TAX === "true") form["automatic_tax[enabled]"] = "true";  // not allowed with Managed Payments
+  }
   if (env.ALLOW_PROMOTION_CODES !== "false") form.allow_promotion_codes = "true";  // customer-facing codes from the Stripe dashboard
-  // UK Consumer Contracts Regs 2013 reg 37: digital content supplied at once needs express consent + acknowledgement
-  // that the 14-day cancellation right is lost. Needs the Terms URL set in Stripe (Settings -> Public details) first.
-  if (env.REQUIRE_TERMS === "true") {
-    form["consent_collection[terms_of_service]"] = "required";
-    form["custom_text[terms_of_service_acceptance][message]"] = TERMS_CONSENT;
+  if (waiver) {
+    const stamp = `accepted ${new Date().toISOString()} terms ${terms || "unknown"}`;
+    form["metadata[consent]"] = stamp;
+    form["payment_intent_data[metadata][consent]"] = stamp;
   }
   const s = await stripe(env, "POST", "/checkout/sessions", form);
-  return json({ client_secret: s.client_secret }, 200, cors(req, env));
+  return json(managed ? { url: s.url } : { client_secret: s.client_secret }, 200, cors(req, env));
 }
 
 async function claim(req, env) {

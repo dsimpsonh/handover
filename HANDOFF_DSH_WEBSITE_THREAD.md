@@ -1,6 +1,6 @@
 # HANDOVER → DSH website thread: handoff brief
 
-From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r3 (payment service LIVE; config wired — ready to push)
+From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r4 (terms + Stripe as merchant of record; one way to buy — ready to push)
 Code: `/Users/dian/Sites/handover/` (local only; no git repo yet)
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
@@ -47,3 +47,12 @@ The current drop's full sha256 list is in `MANIFEST.sha256`, in the repo root. C
 - Verified from outside: health OK · unsigned webhook refused (400) · live checkout session created (200) · unpaid session refused (402) · unknown session 404 · forged licence refused (403).
 - `MANIFEST.sha256` covers every shipped file; run `shasum -a 256 -c MANIFEST.sha256` before pushing (expect 39 OK).
 - After the site is live: Diana runs one real $99 purchase, checks a key appears and the app unlocks, then refunds it and revokes the key (`worker/README.md` → Support).
+
+## r4 — 10 Nov 2026: terms of sale, Stripe as merchant of record, one way to buy
+- New page `terms/` (terms of sale). Footers, checkout and the thank-you page link to it; `privacy/` is complete (contact email filled).
+- `/checkout/` now has a required tick box (terms + 14-day waiver). After ticking, the buyer goes to Stripe's hosted checkout with **Managed Payments** (Stripe/Onelink is merchant of record and handles VAT and sales tax worldwide), then comes back to `/checkout/return/`.
+- **One way to buy:** link every "Buy" button, email and social post to `https://handover.dianasimpsonhernandez.com/checkout/`. Do **not** use the old Stripe Payment Link, buy button or `brand/handover_payment_qr.png`; they are retired. Use `brand/handover_checkout_qr.png` / `.svg` for print and slides.
+- Push this drop, then tell Diana. **Only after the push** she runs (one line, Terminal):
+  `cd ~/Sites/handover/worker && sed -i '' -e 's/^MANAGED_PAYMENTS = "false"/MANAGED_PAYMENTS = "true"/' -e 's/^REQUIRE_TERMS = "false"/REQUIRE_TERMS = "true"/' wrangler.toml && npx wrangler@4 deploy`
+- Then one real $99 purchase: the Stripe page should say "Sold through Onelink", a key appears on the thank-you page, the app unlocks. Refund it in Stripe.
+

@@ -38,24 +38,23 @@ Run every command from `~/Sites/handover/worker`.
    - add a live webhook and run `wrangler secret put STRIPE_WEBHOOK_SECRET` with its signing secret
    - send the tech thread `pk_live_…` for `js/config.js`
 
-## Payment Link and QR code (live)
-- Link: `https://buy.stripe.com/4gM4gz0rx4hT7Ce1H863K00` · ID `plink_1UaBo4Fm0kSIOXJpiq6m6Z7R`, already set as `PAYMENT_LINK_ID` in `wrangler.toml`. The QR code is in `brand/handover_payment_qr.png`.
-- **Required:** in Stripe, open Payment Links → this link → Edit → *After payment* → **Don't show confirmation page; redirect to your website**. Enter:
-  `https://handover.dianasimpsonhernandez.com/checkout/return/?session_id={CHECKOUT_SESSION_ID}`
-  Without this redirect, link buyers get Stripe's generic page and no key. The webhook still records the key on the payment, so support can find it.
-- **Don't share the link or QR until the Worker and site are live.** Payments made before then won't unlock anything without manual help.
+## One way to buy: /checkout/ (decided 10 Nov 2026)
+- Every sale goes through `https://handover.dianasimpsonhernandez.com/checkout/`: terms + 14-day waiver tick box, then Stripe's hosted page with Managed Payments (Stripe/Onelink is merchant of record and handles VAT/sales tax).
+- QR code for print, slides and social: `brand/handover_checkout_qr.png` (and `.svg`), pointing at `/checkout/`.
+- The old Payment Link `plink_1UaBo4Fm0kSIOXJpiq6m6Z7R` (`buy.stripe.com/4gM4gz…`) predates Managed Payments and can't be converted. Keep it **deactivated**; `brand/handover_payment_qr.png` points at it and is retired. `PAYMENT_LINK_ID` stays in `wrangler.toml` only so any sale already made through it still earns a key.
+- Stripe settings in place: price includes tax (account default "Include tax in prices: Yes"), product category SaaS – business use, statement descriptor `DISH HANDOVER` (card statements show `LINK.COM* DISH HANDOVER`), support email set, refund requests "Email me for approval" (48 h to decide).
 
 ## Discount codes
 - Create them in Stripe: **Product catalogue → Coupons → New**. A coupon can be a percentage or a fixed amount, and can be limited to the HANDOVER product. Then add a **promotion code**, the word customers type (for example `LAUNCH30`), with optional expiry, redemption limit, and first-time-customers-only.
 - On HANDOVER's own checkout, the "Add promotion code" field is already on (`ALLOW_PROMOTION_CODES = "true"`).
-- On the Payment Link: **Payment Links → the link → Edit → Options → Allow promotion codes**.
 - 100%-off codes (gifts, workshop places) still issue a licence key.
 
 ## Terms of sale and the 14-day waiver (UK)
-HANDOVER delivers the key straight away, so UK law needs the buyer to tick a box agreeing that their 14-day cancellation right ends on delivery.
-1. In Stripe go to **Settings → Business → Public details**. Set **Terms of service** to `https://handover.dianasimpsonhernandez.com/terms/` (and Privacy policy to `/privacy/`).
-2. Set `REQUIRE_TERMS = "true"` in `wrangler.toml`, then run `npx wrangler@4 deploy`. HANDOVER's checkout now shows the required tick box with the waiver wording.
-3. Payment Link: **Edit → Options → Require customers to accept your terms of service**, and put the waiver sentence in the link's custom text for terms.
+HANDOVER delivers the key straight away, so UK law needs the buyer's express consent and acknowledgement that the 14-day cancellation right ends on delivery.
+- **HANDOVER checkout (`/checkout/`)**: a required tick box above the payment form; the Stripe form only loads once it is ticked. The Worker stamps `consent = accepted <time> terms <version>` on the session and the payment (visible in Stripe → the payment → Metadata).
+- `REQUIRE_TERMS = "true"` in `wrangler.toml` makes the Worker refuse any checkout without the tick (then `npx wrangler@4 deploy`).
+- **Payment Link / QR (Stripe-hosted page)**: Stripe shows its own terms tick box once a Terms of service URL is saved on the account (dashboard.stripe.com/settings/public). Then: Payment Links → the link → Edit → Options → Require customers to accept your terms of service.
+- When the Terms change, update the date on `/terms/` and `TERMS_VERSION` in `js/checkout.js` together.
 
 ## Tax
 Keep `AUTOMATIC_TAX = "false"` until Andy confirms the VAT position. Once Stripe Tax is set up, change it to `"true"`.

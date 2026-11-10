@@ -17,6 +17,10 @@
   .co-sum li { padding: 0.45rem 0; border-bottom: 1px solid var(--rule-soft); }
   .co-total { display: flex; justify-content: space-between; align-items: baseline; font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; }
   #checkout-form { min-height: 320px; }
+  .consent { display: flex; gap: 0.7rem; align-items: flex-start; padding: 0.9rem 1rem; border: 1px solid var(--rule); border-radius: 6px; margin-bottom: 1rem; font-size: 15px; line-height: 1.5; color: var(--ink-soft); cursor: pointer; }
+  .consent input { width: 1.15rem; height: 1.15rem; margin-top: 0.15rem; flex: none; accent-color: var(--accent); }
+  .consent a { color: var(--accent); }
+  #checkout-form[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -41,10 +45,14 @@
         <li>Your files still never leave your computer</li>
       </ul>
       <div class="co-total"><span>Total</span><span id="price">$99</span></div>
-      <p class="hx-note" style="margin-top:0.6rem">One-time payment. Sold by DiSH Creative Ltd. Payment is handled by Stripe, which uses cookies on this page. By paying you agree to the <a href="/terms/" style="color:var(--accent)">Terms of sale</a>, and your licence key is delivered straight away, so the 14-day cancellation right ends on delivery (your rights if it is faulty are not affected). <a href="/privacy/" style="color:var(--accent)">Privacy notice</a>.<br>DiSH Creative Ltd · registered in England and Wales, no. 12756804 · 52 High Street, Pinner, HA5 5PW.</p>
+      <p class="hx-note" style="margin-top:0.6rem">One-time payment. Sold by DiSH Creative Ltd. Payment is handled by Stripe, which uses cookies on this page. Your licence key is delivered straight away, so the 14-day cancellation right ends on delivery; your rights if it is faulty are not affected (<a href="/terms/" style="color:var(--accent)">Terms of sale</a>). <a href="/privacy/" style="color:var(--accent)">Privacy notice</a>.<br>DiSH Creative Ltd · registered in England and Wales, no. 12756804 · 52 High Street, Pinner, HA5 5PW.</p>
     </section>
     <section class="card">
-      <div id="checkout-form"><p class="status" id="coStatus">Loading secure checkout…</p></div>
+      <label class="consent" for="agree">
+        <input type="checkbox" id="agree">
+        <span>I agree to the <a href="/terms/" target="_blank" rel="noopener">Terms of sale</a>. I ask for my licence key to be supplied straight away, and I understand that I lose my 14-day right to cancel once it is delivered.</span>
+      </label>
+      <div id="checkout-form" aria-disabled="true"><p class="status" id="coStatus">Loading secure checkout…</p></div>
     </section>
   </div>
 </main>

@@ -125,17 +125,41 @@ test("promotion codes are allowed and a 100%-off order still earns a key", async
   assert.equal((await W.default.fetch(req("/claim?session_id=cs_live_OPEN2"), e)).status, 402);
 });
 
-test("REQUIRE_TERMS adds the consent tick box and the cancellation waiver text", async () => {
-  assert.match(W.TERMS_CONSENT, /14-day right to cancel/);
-  assert.ok(W.TERMS_CONSENT.length < 1200);
+test("REQUIRE_TERMS: no tick, no checkout; a tick is stamped on the session and the payment", async () => {
+  const post = (body, extra = {}) => W.default.fetch(new Request("https://api/create-checkout-session", { method: "POST",
+    headers: { origin: ORIGIN, "content-type": "application/json" }, body: body == null ? undefined : JSON.stringify(body) }), { ...env(), ...extra });
   mockStripe({});
-  const off = await W.default.fetch(new Request("https://api/create-checkout-session", { method: "POST", headers: { origin: ORIGIN } }), env());
-  assert.equal(off.status, 200);
-  assert.equal(new URLSearchParams(stripeCalls.at(-1).body).get("consent_collection[terms_of_service]"), null);
+  assert.equal((await post(null)).status, 200);                                   // off: old clients still work
+  assert.equal(new URLSearchParams(stripeCalls.at(-1).body).get("metadata[consent]"), null);
   mockStripe({});
-  const r = await W.default.fetch(new Request("https://api/create-checkout-session", { method: "POST", headers: { origin: ORIGIN } }), { ...env(), REQUIRE_TERMS: "true" });
+  const refused = await post({ waiver: false }, { REQUIRE_TERMS: "true" });
+  assert.equal(refused.status, 400);
+  assert.equal(stripeCalls.length, 0);                                            // refused before any Stripe call
+  mockStripe({});
+  const ok = await post({ waiver: true, terms: "2026-11-10" }, { REQUIRE_TERMS: "true" });
+  assert.equal(ok.status, 200);
+  const b = new URLSearchParams(stripeCalls.at(-1).body);
+  assert.match(b.get("metadata[consent]"), /^accepted \d{4}-.+ terms 2026-11-10$/);
+  assert.equal(b.get("payment_intent_data[metadata][consent]"), b.get("metadata[consent]"));
+});
+
+test("MANAGED_PAYMENTS: hosted page, merchant of record on, no automatic_tax, returns the Stripe URL", async () => {
+  mockStripe({});
+  globalThis.fetch = (orig => async (url, init = {}) => {
+    if (String(url).endsWith("/checkout/sessions") && init.method === "POST") { stripeCalls.push({ url: String(url), body: init.body });
+      return new Response(JSON.stringify({ id: "cs_test_M", url: "https://checkout.stripe.com/c/pay/cs_test_M" })); }
+    return orig(url, init);
+  })(globalThis.fetch);
+  const r = await W.default.fetch(new Request("https://api/create-checkout-session", { method: "POST",
+    headers: { origin: ORIGIN, "content-type": "application/json" }, body: JSON.stringify({ waiver: true, terms: "2026-11-10" }) }),
+    { ...env(), MANAGED_PAYMENTS: "true", AUTOMATIC_TAX: "true", REQUIRE_TERMS: "true" });
   assert.equal(r.status, 200);
-  const body = new URLSearchParams(stripeCalls.at(-1).body);
-  assert.equal(body.get("consent_collection[terms_of_service]"), "required");
-  assert.equal(body.get("custom_text[terms_of_service_acceptance][message]"), W.TERMS_CONSENT);
+  assert.deepEqual(await r.json(), { url: "https://checkout.stripe.com/c/pay/cs_test_M" });
+  const b = new URLSearchParams(stripeCalls.at(-1).body);
+  assert.equal(b.get("ui_mode"), "hosted_page");
+  assert.equal(b.get("managed_payments[enabled]"), "true");
+  assert.equal(b.get("automatic_tax[enabled]"), null);
+  assert.equal(b.get("return_url"), null);
+  assert.match(b.get("success_url"), /\/checkout\/return\/\?session_id=\{CHECKOUT_SESSION_ID\}$/);
+  assert.equal(b.get("metadata[product]"), "handover");
 });
