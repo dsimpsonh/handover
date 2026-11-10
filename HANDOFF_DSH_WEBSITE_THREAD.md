@@ -1,8 +1,38 @@
 # HANDOVER → DSH website thread: handoff brief
 
-From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r4 (terms + Stripe as merchant of record; one way to buy — ready to push)
-Code: `/Users/dian/Sites/handover/` (local only; no git repo yet)
+From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r5 (landing page: switching-providers story, walkthrough animation, what you get)
+Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
+
+## ▶ r5 — push this now (10 Nov 2026)
+
+r4 is live and the payment switches are on (checked from outside: terms tick box required, Stripe Managed Payments active). r5 changes the landing page only. **No payment, checkout or Worker changes and nothing for Diana to run.**
+
+Changed files: `index.html` · `assets/css/demo.css` (new) · `js/demo.js` (new) · `.gitignore` (now ignores `brand/`, marketing source files that don't belong on the site) · `HANDOFF_DSH_WEBSITE_THREAD.md` · `MANIFEST.sha256`
+
+```bash
+cd ~/Sites/handover && shasum -a 256 -c MANIFEST.sha256 | grep -c ': OK$'   # expect 42
+git status --short --ignored                                                # private/ and brand/ must show as !! (ignored)
+git add index.html assets/css/demo.css js/demo.js .gitignore HANDOFF_DSH_WEBSITE_THREAD.md MANIFEST.sha256
+git commit -m "HANDOVER r5: landing page for switching AI providers, walkthrough animation, what you get"
+git push
+```
+
+After the push, check `https://handover.dianasimpsonhernandez.com/`: the hero shows the walkthrough (coral = old way, green = HANDOVER way), and the page has the sections Why switch, Example, What you get, How it works, Privacy, Price.
+
+## ✓ Launch sequence (r4) — done 10 Nov 2026 — do these in order
+
+**1. Website thread:** check `shasum -a 256 -c MANIFEST.sha256` (expect 42 OK), confirm `private/` is git-ignored, push, then tell Diana "pushed".
+
+**2. Diana, only after the push — paste this one line into Terminal:**
+
+```bash
+cd ~/Sites/handover/worker && sed -i '' -e 's/^MANAGED_PAYMENTS = "false"/MANAGED_PAYMENTS = "true"/' -e 's/^REQUIRE_TERMS = "false"/REQUIRE_TERMS = "true"/' wrangler.toml && grep -E '^(MANAGED_PAYMENTS|REQUIRE_TERMS)' wrangler.toml && npx wrangler@4 deploy
+```
+
+It should print `MANAGED_PAYMENTS = "true"` and `REQUIRE_TERMS = "true"`, then `Deployed handover-api`. This switches on Stripe as merchant of record and the required terms tick box. Running it before the push would block sales, because the live checkout page wouldn't have the tick box yet.
+
+**3. Diana — one real test purchase** at `https://handover.dianasimpsonhernandez.com/checkout/`: tick the box → Stripe page says "Sold through Onelink" → pay $99 → a key appears on the thank-you page → the app unlocks. Refund it in Stripe, then ask the tech thread for the one-line command to revoke that key.
 
 ## Who does what
 | This tech thread builds | The DSH website thread does |
@@ -52,7 +82,6 @@ The current drop's full sha256 list is in `MANIFEST.sha256`, in the repo root. C
 - New page `terms/` (terms of sale). Footers, checkout and the thank-you page link to it; `privacy/` is complete (contact email filled).
 - `/checkout/` now has a required tick box (terms + 14-day waiver). After ticking, the buyer goes to Stripe's hosted checkout with **Managed Payments** (Stripe/Onelink is merchant of record and handles VAT and sales tax worldwide), then comes back to `/checkout/return/`.
 - **One way to buy:** link every "Buy" button, email and social post to `https://handover.dianasimpsonhernandez.com/checkout/`. Do **not** use the old Stripe Payment Link, buy button or `brand/handover_payment_qr.png`; they are retired. Use `brand/handover_checkout_qr.png` / `.svg` for print and slides.
-- Push this drop, then tell Diana. **Only after the push** she runs (one line, Terminal):
-  `cd ~/Sites/handover/worker && sed -i '' -e 's/^MANAGED_PAYMENTS = "false"/MANAGED_PAYMENTS = "true"/' -e 's/^REQUIRE_TERMS = "false"/REQUIRE_TERMS = "true"/' wrangler.toml && npx wrangler@4 deploy`
-- Then one real $99 purchase: the Stripe page should say "Sold through Onelink", a key appears on the thank-you page, the app unlocks. Refund it in Stripe.
+- Landing page repositioned for **switching AI providers**: new hero headline, a "Why switch" section (#why) and a worked example "Two years on Claude. Moving on." (#example). A "What you get" section (#get) names the three files: HANDOVER_PACK.md, KNOWLEDGE_BLUEPRINT.md and the standing instructions file. The walkthrough shows the old way in coral and the HANDOVER way in green. The hero also has a one-minute captioned walkthrough animation (`assets/css/demo.css`, `js/demo.js`, markup in `index.html`). No video file, no third parties; it plays only when visible, has pause/replay, and respects reduced-motion settings.
+- Push and launch: follow **▶ Launch sequence (r4)** at the top of this brief.
 

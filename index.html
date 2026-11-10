@@ -3,19 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HANDOVER — never lose your AI's memory when you switch models</title>
+<title>HANDOVER — switch AI providers without starting from zero</title>
 <meta name="description" content="HANDOVER maps your folders in your browser and builds one pack your next AI loads, so your rules, decisions and know-how move with you. Nothing is uploaded.">
-<meta property="og:title" content="HANDOVER — never lose your AI's memory when you switch models">
+<meta property="og:title" content="HANDOVER — switch AI providers without starting from zero">
 <meta property="og:description" content="Map your folders in your browser. Paste one pack into your next AI. Nothing is uploaded.">
 <link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="/assets/css/main.css">
 <link rel="stylesheet" href="/assets/css/handover.css">
+<link rel="stylesheet" href="/assets/css/demo.css">
 </head>
 <body>
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="nav-mark"><b>HANDOVER</b> <span>by Diana Simpson Hernandez</span></a>
     <ul class="nav-links">
+      <li><a href="#why">Why switch</a></li>
       <li><a href="#how">How it works</a></li>
       <li><a href="#privacy">Privacy</a></li>
       <li><a href="#price">Price</a></li>
@@ -25,15 +27,197 @@
 </nav>
 
 <main class="wrap">
-  <section class="hx-hero">
-    <div class="eyebrow">HANDOVER · for business owners who work with AI</div>
-    <h1>Never lose your AI's <em>memory</em> when you switch.</h1>
-    <p class="lead">Your rules, decisions and know-how live across your documents and one AI's chat history. HANDOVER maps your folders in your browser and builds one pack your next AI loads, so nothing important stays behind.</p>
+  <section class="hx-hero has-demo">
+    <div class="hx-hero-copy">
+    <div class="eyebrow">HANDOVER · move to a new AI provider</div>
+    <h1>Switch AI. <em>Keep</em> everything it knew.</h1>
+    <p class="lead">Prices go up. Limits change. A better model launches somewhere else. After two years with one AI, your projects, skills and core documents hold how your business works, but nothing is written for a new AI to read. HANDOVER maps it all in your browser and builds one pack your next AI loads on day one.</p>
     <div class="hx-cta">
       <a class="btn btn-primary" href="/app/">Map my folders free <span class="arrow">→</span></a>
       <a class="btn" href="#how">How it works</a>
     </div>
     <p class="hx-note" style="margin-top:1rem">Runs in your browser · nothing is uploaded · works with Claude, ChatGPT and Gemini</p>
+    </div>
+
+    <figure class="demo" id="demo" aria-label="A one-minute walkthrough of HANDOVER, with captions">
+      <div class="demo-stage">
+        <div class="demo-bar" aria-hidden="true"><i></i><i></i><i></i><span>handover</span></div>
+
+        <div class="sc why" data-theme="hard" data-title="Your AI provider" data-ms="6500"
+             data-caption="<b>Time to switch AI provider?</b> Prices rise, limits change, a better model launches. Switching should be a business decision, not a fresh start.">
+          <div class="why-h a" style="--d:.1s"><span class="tag">Your AI plan</span><div class="big">Time to switch?</div></div>
+          <div class="why-c a" style="--d:.6s"><span class="tag">Price</span><b>Plan price ↑</b><span>per seat, per month</span></div>
+          <div class="why-c a" style="--d:1.1s"><span class="tag">Limits</span><b>Usage capped</b><span>at the busiest time</span></div>
+          <div class="why-c a" style="--d:1.6s"><span class="tag">Models</span><b>Better model elsewhere</b><span>for your kind of work</span></div>
+          <div class="why-q a" style="--d:2.6s">…but two years of how you work lives in this one.</div>
+        </div>
+
+        <div class="sc" data-theme="hard" data-title="Two years in one AI" data-ms="6500"
+             data-caption="<b>Two years of know-how, locked in one place.</b> Projects, skills, canonical documents and thousands of files, none of it written for a new AI to read.">
+          <span class="chip fl" style="left:6%;top:8%;--d:.1s"><b class="ai">PROJ</b>14 AI projects</span>
+          <span class="chip fl" style="left:52%;top:5%;--d:.3s"><b class="md">SKILL</b>quote-writer</span>
+          <span class="chip fl" style="left:28%;top:27%;--d:.5s"><b>DOCX</b>Pricing — canonical v7</span>
+          <span class="chip fl" style="left:62%;top:34%;--d:.7s"><b class="md">SKILL</b>client-onboarding</span>
+          <span class="chip fl" style="left:5%;top:50%;--d:.9s"><b class="pdf">PDF</b>Refund policy</span>
+          <span class="chip fl" style="left:40%;top:60%;--d:1.1s"><b class="md">MD</b>Project instructions</span>
+          <span class="chip fl" style="left:10%;top:79%;--d:1.3s"><b>XLSX</b>2,340 files</span>
+          <span class="chip fl" style="left:58%;top:81%;--d:1.5s"><b class="pdf">?</b>No blueprint</span>
+        </div>
+
+        <div class="sc" data-theme="hard" data-title="Without HANDOVER · new AI, week one" data-ms="8000"
+             data-caption="<b>Without a handover, you start from zero.</b> Hours re-explaining prices, rules and past decisions, and it still gets them wrong.">
+          <div class="chat tight">
+            <div class="chat-h"><span class="tag">Your new AI</span><span class="clock a" style="--d:.2s">⏱ hour 3 re-explaining</span></div>
+            <div class="chat-b">
+              <div class="msg me a" style="--d:.4s">Draft the quote for the Patel job, the way we always do it.</div>
+              <div class="msg ai bad a" style="--d:1.3s">I don't know how you usually quote. What are your prices and deposit terms?</div>
+              <div class="msg me a" style="--d:2.4s">30% deposit. Same as the last 200 quotes…</div>
+              <div class="msg ai bad a" style="--d:3.4s">Done. I've used a 50% deposit and courier delivery to London. <span class="x">✗ wrong twice</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc" data-theme="tool" data-title="HANDOVER · mapping in your browser" data-ms="7000"
+             data-caption="<b>HANDOVER maps your folders, right in your browser.</b> Every file and how they connect. Nothing is uploaded.">
+          <div class="map">
+            <svg viewBox="0 0 400 260" aria-hidden="true">
+              <line x1="200" y1="125" x2="70"  y2="45"  style="--d:.3s"/><line x1="200" y1="125" x2="330" y2="40"  style="--d:.5s"/>
+              <line x1="200" y1="125" x2="60"  y2="190" style="--d:.7s"/><line x1="200" y1="125" x2="340" y2="200" style="--d:.9s"/>
+              <line x1="200" y1="125" x2="200" y2="20"  style="--d:1.1s"/><line x1="70" y1="45" x2="60" y2="190" style="--d:1.5s"/>
+              <line x1="330" y1="40" x2="340" y2="200" style="--d:1.7s"/><line x1="200" y1="20" x2="330" y2="40" style="--d:1.9s"/>
+              <circle class="hub" cx="200" cy="125" r="11"/>
+              <circle cx="70" cy="45" r="7"/><circle cx="330" cy="40" r="7"/><circle cx="60" cy="190" r="7"/>
+              <circle cx="340" cy="200" r="7"/><circle cx="200" cy="20" r="7"/>
+            </svg>
+            <span class="node-l a" style="left:17.5%;top:8%;--d:.6s">Customer SOP</span>
+            <span class="node-l a" style="left:82%;top:6%;--d:.8s">Price list</span>
+            <span class="node-l a" style="left:15%;top:84%;--d:1s">Refund policy</span>
+            <span class="node-l a" style="left:80%;top:87%;--d:1.2s">Decisions log</span>
+            <span class="node-l a" style="left:50%;top:0%;--d:1.4s">Quotes tracker</span>
+            <span class="node-l a" style="left:50%;top:58%;--d:.2s;font-weight:700;color:var(--accent)">your business</span>
+          </div>
+          <span class="lock" style="--d:2.4s">🔒 Read in this tab · nothing uploaded</span>
+        </div>
+
+        <div class="sc" data-theme="tool" data-title="HANDOVER · what it found" data-ms="7500"
+             data-caption="<b>It finds your rules and decisions,</b> each with the file and line it came from, so your AI can show its working.">
+          <div class="cards">
+            <div class="card a" style="--d:.3s"><span class="tag">Rule</span><p>Deposit is 30%, balance on delivery.</p><div class="src">Price list 2026.pdf · page 2</div></div>
+            <div class="card dec a" style="--d:1.3s"><span class="tag">Decision</span><p>We stopped using couriers for London jobs, too many damages.</p><div class="src">Decisions log.md · line 41</div></div>
+            <div class="card a" style="--d:2.3s"><span class="tag">Rule</span><p>Reply to every enquiry within 24 hours.</p><div class="src">Customer SOP.docx · line 8</div></div>
+          </div>
+        </div>
+
+        <div class="sc" data-theme="tool" data-title="HANDOVER · you choose" data-ms="7000"
+             data-caption="<b>You choose what your AI sees.</b> Leave out private folders. Emails and phone numbers are blanked by default.">
+          <div class="rows">
+            <div class="row a" style="--d:.2s">Pricing &amp; quotes <span class="tg"></span></div>
+            <div class="row a" style="--d:.4s">Policies &amp; SOPs <span class="tg"></span></div>
+            <div class="row off" style="--d:.6s;--t:2.2s">HR &amp; payroll <span class="tg"></span></div>
+            <div class="row a" style="--d:.8s">Decisions log <span class="tg"></span></div>
+            <div class="row a" style="--d:1s">Client contact: <span class="redact"><span class="was">j.patel@mail.com</span><span class="now">[email]</span></span><span class="tag">auto</span></div>
+          </div>
+        </div>
+
+        <div class="sc" data-theme="easy" data-title="With HANDOVER · one file" data-ms="7000"
+             data-caption="<b>You get one file: your HANDOVER pack.</b> Upload it to your new AI, or paste it in. That's the whole move.">
+          <div class="file a" style="--d:.2s">
+            <div class="file-ic">MD</div>
+            <div><div class="ttl">HANDOVER_PACK.md</div><span class="tag">projects · skills · canonical docs · rules · decisions</span></div>
+            <span class="ok">✓ ready</span>
+          </div>
+          <div class="chat mini a" style="--d:1.4s">
+            <div class="chat-h"><span class="tag">Your new AI</span><span class="tag">new project</span></div>
+            <div class="chat-b"><div class="attach a" style="--d:2.4s">📎 HANDOVER_PACK.md <span class="ok">uploaded</span></div></div>
+            <div class="chat-in"><span>Read this pack and set yourself up.</span><span class="tag" style="color:var(--green)">send ↵</span></div>
+          </div>
+        </div>
+
+        <div class="sc" data-theme="easy" data-title="With HANDOVER · new AI, day one" data-ms="9000"
+             data-caption="<b>Your new AI writes your Knowledge Blueprint and its own standing instructions.</b> Save both in its project. From the first chat, it works your way.">
+          <div class="doc">
+            <div class="doc-h a" style="--d:.1s"><span class="tag">Your new AI · day one</span><span class="clock good">⏱ set up in minutes</span></div>
+            <div class="outs">
+              <div class="out a" style="--d:.3s"><b>KNOWLEDGE_BLUEPRINT.md</b><span>pricing · rules · decisions and why</span><s>✓</s></div>
+              <div class="out a" style="--d:1.1s"><b>Standing instructions</b><span>in your new AI's own format</span><s>✓</s></div>
+            </div>
+            <div class="reply">
+              <div class="msg me a" style="--d:2.3s;margin-left:auto">Draft the Patel quote, our usual way.</div>
+              <div class="msg ai good a" style="--d:3.3s;max-width:100%">Done: 30% deposit, balance on delivery, our own van for London. <span class="v">✓ right first time</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc end" data-theme="easy" data-title="HANDOVER" data-ms="7000"
+             data-caption="<b>Switch providers on your terms.</b> Map your folders free, unlock the full pack for $99 once. Your files never leave your computer.">
+          <div class="big a" style="--d:.1s">Switch AI. <em>Keep everything it knew.</em></div>
+          <div class="pills a" style="--d:.6s"><span>About 10 minutes</span><span>Nothing uploaded</span><span>$99, once</span></div>
+          <a class="btn btn-primary a" style="--d:1s" href="/app/" tabindex="-1">Map my folders free <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+      <figcaption class="demo-cap"><p aria-live="polite"></p></figcaption>
+      <div class="demo-ctl"><div class="demo-dots"></div><button class="demo-play" type="button" aria-label="Pause walkthrough">❚❚</button></div>
+    </figure>
+  </section>
+
+  <section class="hx-section" id="why">
+    <div class="eyebrow">Why switch</div>
+    <h2>Your AI provider shouldn't own your know-how.</h2>
+    <div class="hx-why">
+      <div><h3>Prices rise</h3><p>A plan goes up per seat, or the features you rely on move to a higher tier. Moving should cost an afternoon, not two years of setup.</p></div>
+      <div><h3>Limits and outages</h3><p>Usage caps and downtime hit when you're busiest. A second provider ready to go is cheap insurance.</p></div>
+      <div><h3>A better model launches</h3><p>The best model for your work changes every few months. Try it with everything your business knows, not a blank chat.</p></div>
+      <div><h3>Your team standardises</h3><p>A client, a partner or your own team settles on another tool. Your rules and decisions go with you.</p></div>
+    </div>
+    <p class="hx-promise" style="margin-top:1.5rem">HANDOVER turns what's spread across one AI's projects and your folders into a <b>Knowledge Blueprint</b> any AI can read. Run it again before every switch, or keep it current so you're never locked in.</p>
+  </section>
+
+  <section class="hx-section" id="example">
+    <div class="eyebrow">Example</div>
+    <h2>Two years on Claude. Moving on.</h2>
+    <p style="color:var(--ink-soft);max-width:62ch;font-size:16px">A ten-person design studio has used Claude every day for two years. Pricing is going up for their plan, and they want to try another model for client work. Here's what they had, and what HANDOVER gives them.</p>
+    <div class="hx-case">
+      <div class="hx-case-col">
+        <div class="eyebrow">What they had</div>
+        <ul>
+          <li><b>14 Claude Projects</b>, each with its own instructions and uploaded files</li>
+          <li><b>9 skills</b> they wrote themselves: quote writer, client onboarding, brand voice…</li>
+          <li><b>Canonical documents</b>: pricing v7, the studio handbook, contract templates, the decisions log</li>
+          <li><b>2,340 files</b> across Drive folders, with old versions next to current ones</li>
+          <li><b>No blueprint.</b> The rules lived in people's heads, prompts and one AI's setup</li>
+        </ul>
+      </div>
+      <div class="hx-case-col">
+        <div class="eyebrow">What HANDOVER does</div>
+        <ol>
+          <li>They paste each project's instructions into a document, gather the project files and their skills folder, and point HANDOVER at those plus their Drive folders.</li>
+          <li>It maps all 2,340 files in the browser: what links to what, which skills and instructions use which documents, and the rules and decisions written in them, each with file and line.</li>
+          <li>They untick HR and client folders and keep emails and phone numbers blanked.</li>
+          <li>They pick the AI they're moving to. HANDOVER builds a pack sized to fit it.</li>
+        </ol>
+      </div>
+      <div class="hx-case-col pro">
+        <div class="eyebrow">What they get</div>
+        <ul>
+          <li><b>A Knowledge Blueprint</b>: how they price, the rules they never break, the decisions and why, each pointing to its source document</li>
+          <li><b>A standing instructions file</b> for the new AI, built from their projects and skills</li>
+          <li><b>Day-one answers</b> in their own terms, from the first chat</li>
+          <li><b>A blueprint they own</b>, ready for the next switch</li>
+        </ul>
+      </div>
+    </div>
+    <p class="hx-note" style="margin-top:1rem">Tip: chat history isn't read yet. Save the conversations that hold important decisions as documents in a folder, and HANDOVER reads them like any other file.</p>
+  </section>
+
+  <section class="hx-section" id="get">
+    <div class="eyebrow">What you get</div>
+    <h2>One file in. Your new AI sets itself up.</h2>
+    <div class="hx-get">
+      <div><span class="n">1</span><h3>HANDOVER_PACK.md</h3><p>One file built from your folders, projects and skills. Very large folders come as a few parts. <b>Upload it to your new AI, or paste it in.</b></p></div>
+      <div><span class="n">2</span><h3>KNOWLEDGE_BLUEPRINT.md</h3><p>Your new AI writes it from the pack: how you price, the rules you never break, your decisions and why, each pointing to its source. <b>Save it in the new AI's project files.</b></p></div>
+      <div><span class="n">3</span><h3>Standing instructions</h3><p>A short file in the format your new AI uses: <code>CLAUDE.md</code>, ChatGPT project instructions, <code>GEMINI.md</code> or <code>AGENTS.md</code>. <b>Paste it into the project's instructions.</b></p></div>
+    </div>
   </section>
 
   <section class="hx-section" id="how">
@@ -87,5 +271,6 @@
     <div class="footer-meta"><span>© 2026 DiSH Creative Ltd · registered in England and Wales, no. 12756804 · 52 High Street, Pinner, HA5 5PW</span><span>handover.dianasimpsonhernandez.com</span></div>
   </div>
 </footer>
+<script src="/js/demo.js" defer></script>
 </body>
 </html>
