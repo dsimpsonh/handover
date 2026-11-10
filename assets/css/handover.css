@@ -41,7 +41,8 @@
   margin-bottom: 1.25rem; min-width: 0; }
 .card h2 { font-size: 1.35rem; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
 .card > p { color: var(--ink-soft); font-size: 15px; }
-.drop { border: 1.5px dashed var(--violet); border-radius: 14px; padding: clamp(1.5rem, 5vw, 3rem); text-align: center;
+.card > p.hx-note { font-size: 0.7rem; color: var(--muted); } /* keep fine print small inside cards (checkout) */
+.drop { display: block; border: 1.5px dashed var(--violet); border-radius: 14px; padding: clamp(1.5rem, 5vw, 3rem); text-align: center;
   background: var(--paper-warm); margin-top: 1rem; }
 .drop.over { background: var(--accent-soft); }
 .drop input { display: none; }
