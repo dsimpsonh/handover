@@ -56,6 +56,13 @@ HANDOVER delivers the key straight away, so UK law needs the buyer's express con
 - **Payment Link / QR (Stripe-hosted page)**: Stripe shows its own terms tick box once a Terms of service URL is saved on the account (dashboard.stripe.com/settings/public). Then: Payment Links → the link → Edit → Options → Require customers to accept your terms of service.
 - When the Terms change, update the date on `/terms/` and `TERMS_VERSION` in `js/checkout.js` together.
 
+## Gift licences (free keys: family, friends, workshop places)
+100%-off promotion codes can't be used: Stripe Managed Payments won't complete a $0 order. Give a key directly instead:
+- `bash gift.sh "Maria Lopez, Houston workshop"` creates a valid key in the live licence store and prints it with what to send.
+- `bash gift.sh --list` shows every gift key; `bash gift.sh --revoke HX-…` switches one off.
+- Records are kept in `private/gifts.csv` (git-ignored, never published). Gift keys don't appear in Stripe.
+- If it says the Cloudflare login has expired: `npx wrangler@4 logout && npx wrangler@4 login`.
+
 ## Tax
 Keep `AUTOMATIC_TAX = "false"` until Andy confirms the VAT position. Once Stripe Tax is set up, change it to `"true"`.
 

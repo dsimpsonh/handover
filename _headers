@@ -1,0 +1,9 @@
+# Cloudflare Pages response headers (GitHub Pages ignores this file).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+
+# Python runtime for the in-browser scan: cache for a week so returning visitors don't download 14 MB again.
+/vendor/*
+  Cache-Control: public, max-age=604800

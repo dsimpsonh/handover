@@ -1,10 +1,43 @@
 # HANDOVER → DSH website thread: handoff brief
 
-From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r6 (app: live progress panel and large-folder support)
+From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r7 (gift licences, Cloudflare Pages standby)
 Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
-## ▶ r6 — push this now (10 Nov 2026)
+## ▶ r7 — push this now (10 Nov 2026)
+
+No page changes visitors will see. Nothing for Diana to run except the one-off standby setup below.
+
+- `worker/gift.sh` (new): Diana's gift-licence tool (`bash gift.sh "Name, Event"`). Its log lives in `private/`, which is git-ignored and never published.
+- `worker/README.md`: Gift licences section.
+- `_headers` (new): response headers for the Cloudflare Pages standby (security headers; one-week cache for the 14 MB Python runtime). GitHub Pages ignores it.
+
+```bash
+cd ~/Sites/handover && shasum -a 256 -c MANIFEST.sha256 | grep -c ': OK$'   # expect 45
+git status --short --ignored | grep private                                 # must show !! (ignored)
+git add worker/gift.sh worker/README.md _headers HANDOFF_DSH_WEBSITE_THREAD.md MANIFEST.sha256
+git commit -m "HANDOVER r7: gift licence tool, Cloudflare Pages standby headers"
+git push
+```
+
+## Hosting: GitHub Pages now, Cloudflare Pages on standby
+
+Decided 10 Nov 2026: stay on GitHub Pages; keep a Cloudflare Pages copy built from the same repo, not on the domain. **Switch when any one happens:** paid ads start · ~100 sales or ~2,000 app opens a month · any email from GitHub about Pages · a post takes off.
+
+**One-off setup (Diana, ~5 min, dash.cloudflare.com, DiSH Creative account):**
+1. Workers & Pages → Create → Pages → Connect to Git → authorise GitHub for `dsimpsonh/handover` only.
+2. Project name `handover-site` · production branch `main` · framework **None** · build command **empty** · output directory `/`.
+3. Save and deploy. Check `https://handover-site.pages.dev/` loads and `/app/` scans a folder. (Unlock and checkout only work on the real domain; that is expected.)
+From then on every `git push` updates both hosts.
+
+**The switch (~10 min):**
+1. Pages project → Custom domains → add `handover.dianasimpsonhernandez.com`.
+2. At the DNS provider for dianasimpsonhernandez.com: change the `handover` CNAME from `dsimpsonh.github.io` to `handover-site.pages.dev`.
+3. Wait until Cloudflare shows the domain Active, then test landing, `/app/`, `/checkout/`.
+4. GitHub → repo Settings → Pages → remove the custom domain and turn Pages off.
+No code, Worker, Stripe or licence changes. Links and QR codes keep working.
+
+## ✓ r6 — pushed 10 Nov 2026 (ce6a3f7)
 
 App only (`/app/`). No landing, checkout, payment or Worker changes, and nothing for Diana to run.
 
