@@ -56,8 +56,8 @@
       const r = await fetch("/private/fragments.json");
       if (r.ok) { S.licence = S.licence || "HX-DEV"; return r.text(); }
     }
-    if (!C.UNLOCK_URL || !S.licence) return null;
-    const r = await fetch(C.UNLOCK_URL, { method: "POST", headers: { "content-type": "application/json" },
+    if (!C.API_BASE || !S.licence) return null;
+    const r = await fetch(C.API_BASE.replace(/\/$/, "") + "/unlock", { method: "POST", headers: { "content-type": "application/json" },
                                           body: JSON.stringify({ licence: S.licence }) });
     if (!r.ok) throw new Error(r.status === 403 ? "That licence key was not recognised." : "Unlock service unavailable.");
     return r.text();
@@ -202,7 +202,7 @@
     $("#next").classList.toggle("hidden", !unlocked);
     $("#price").textContent = C.PRICE_LABEL || "";
     const buy = $("#buyBtn");
-    if (C.STRIPE_LINK) { buy.href = C.STRIPE_LINK; buy.removeAttribute("aria-disabled"); }
+    if (C.API_BASE && C.STRIPE_PUBLISHABLE_KEY) { buy.href = C.CHECKOUT_PATH || "/checkout/"; buy.target = "_self"; buy.removeAttribute("aria-disabled"); }
     else { buy.removeAttribute("href"); buy.setAttribute("aria-disabled", "true"); buy.style.opacity = 0.6; buy.title = "Checkout opens soon"; }
   }
   $("#licenceBtn").onclick = () => {

@@ -1,0 +1,26 @@
+# HANDOVER API — Cloudflare Worker. No secrets in this file.
+name = "handover-api"
+main = "src/index.js"
+account_id = "0efcbfb2427e282f755a74ce17b995d4"
+compatibility_date = "2026-10-01"
+
+[vars]
+SITE_ORIGIN = "https://handover.dianasimpsonhernandez.com"
+ALLOWED_ORIGINS = "https://handover.dianasimpsonhernandez.com,http://localhost:8000"
+PRODUCT_ID = "prod_VbNvnDNZtugBgQ"    # HANDOVER in the DiSH Creative Ltd Stripe account; its default price ($99) is used
+PAYMENT_LINK_ID = "plink_1UaBo4Fm0kSIOXJpiq6m6Z7R"   # buy.stripe.com/4gM4gz0rx4hT7Ce1H863K00 (QR, buy button); its sessions also earn a key
+PRICE_ID = ""                         # optional override: a specific price_… (leave empty to use the product's default price)
+ALLOW_PROMOTION_CODES = "true"        # shows "Add promotion code" on the HANDOVER checkout
+AUTOMATIC_TAX = "false"               # "true" once Stripe Tax is set up (EU OSS / US states)
+REQUIRE_TERMS = "false"                # "true" once the Terms URL is set in Stripe (Settings -> Public details); adds the 14-day waiver tick box
+STRIPE_API_VERSION = "2026-08-26.dahlia"   # ui_mode=form needs a Dahlia API version (Basil rejects it)
+
+# wrangler kv namespace create LICENCES  -> paste the id below
+[[kv_namespaces]]
+binding = "LICENCES"
+id = "dc49df0259ad4a538abaf9eb1645581b"
+
+# Secrets (never in this file):
+#   wrangler secret put STRIPE_SECRET_KEY
+#   wrangler secret put STRIPE_WEBHOOK_SECRET
+#   wrangler secret put LICENCE_SECRET        (long random string; never change it after launch, keys are derived from it)

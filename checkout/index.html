@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANDOVER — checkout</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/handover.css">
+<!-- The only third-party script on the site. Stripe requires it to load from js.stripe.com (PCI); never self-host it. -->
+<script src="https://js.stripe.com/dahlia/stripe.js"></script>
+<style>
+  .co-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 1.25rem; align-items: start; }
+  @media (max-width: 860px) { .co-grid { grid-template-columns: 1fr; } }
+  .co-sum ul { list-style: none; margin: 1rem 0; font-size: 15px; color: var(--ink-soft); }
+  .co-sum li { padding: 0.45rem 0; border-bottom: 1px solid var(--rule-soft); }
+  .co-total { display: flex; justify-content: space-between; align-items: baseline; font-weight: 800; font-size: 1.6rem; letter-spacing: -0.02em; }
+  #checkout-form { min-height: 320px; }
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a href="/" class="nav-mark"><b>HANDOVER</b> <span>by Diana Simpson Hernandez</span></a>
+  <ul class="nav-links"><li><a href="/app/">Back to the app</a></li></ul>
+</div></nav>
+
+<main class="wrap">
+  <header class="app-head">
+    <div class="eyebrow">HANDOVER · checkout</div>
+    <h1>Unlock <em>HANDOVER</em></h1>
+    <p>One payment. Your licence key appears on the next page and unlocks the full pack in this browser.</p>
+  </header>
+  <div class="co-grid">
+    <section class="card co-sum">
+      <h2>What you get</h2>
+      <ul>
+        <li>The full HANDOVER pack, sized for Claude, ChatGPT, Gemini or a coding agent</li>
+        <li>The instructions that make your AI write your Knowledge Blueprint and a standing instructions file</li>
+        <li>Run it again whenever your folders change</li>
+        <li>Your files still never leave your computer</li>
+      </ul>
+      <div class="co-total"><span>Total</span><span id="price">$99</span></div>
+      <p class="hx-note" style="margin-top:0.6rem">One-time payment. Sold by DiSH Creative Ltd. Payment is handled by Stripe, which uses cookies on this page. By paying you agree to the <a href="/terms/" style="color:var(--accent)">Terms of sale</a>, and your licence key is delivered straight away, so the 14-day cancellation right ends on delivery (your rights if it is faulty are not affected). <a href="/privacy/" style="color:var(--accent)">Privacy notice</a>.<br>DiSH Creative Ltd · registered in England and Wales, no. 12756804 · 52 High Street, Pinner, HA5 5PW.</p>
+    </section>
+    <section class="card">
+      <div id="checkout-form"><p class="status" id="coStatus">Loading secure checkout…</p></div>
+    </section>
+  </div>
+</main>
+<script src="/js/config.js"></script>
+<script src="/js/checkout.js"></script>
+</body>
+</html>

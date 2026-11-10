@@ -1,7 +1,7 @@
 # HANDOVER
 
 **Never lose your AI's memory when you switch models.**
-A Dish Creative Ltd product by Diana Simpson Hernandez · `handover.dianasimpsonhernandez.com`
+A DiSH Creative Ltd product by Diana Simpson Hernandez · `handover.dianasimpsonhernandez.com`
 
 HANDOVER maps a folder **inside the user's browser** and builds one paste-ready pack for the AI they are moving to. That AI writes the `KNOWLEDGE_BLUEPRINT.md` and a standing instructions file (`CLAUDE.md`, `AGENTS.md`, …). No document is ever uploaded to us.
 
@@ -12,7 +12,10 @@ index.html              landing page
 app/index.html          the app: 01 Choose → 02 Review → 03 Pack
 js/app.js               UI controller (no network calls except the optional unlock service)
 js/worker.js            Web Worker: runs Pyodide + the Python engine off the UI thread
-js/config.js            public settings: STRIPE_LINK, UNLOCK_URL (no secrets)
+js/config.js            public settings: API_BASE, STRIPE_PUBLISHABLE_KEY (no secrets)
+js/checkout.js, js/return.js   embedded Stripe checkout (ui_mode=form) and licence claim
+checkout/, checkout/return/    checkout pages (the ONLY pages that load a third-party script: js.stripe.com)
+worker/                 Cloudflare Worker: checkout session, licence issue/claim, webhook, unlock (see worker/README.md)
 engine/scan.py          layer 1: folder -> graph.json (stdlib; identical output in CLI and browser)
 engine/pack.py          layer 2: graph -> ranked, redacted, budgeted pack + licensed prompt
 engine/render.py        interactive map
@@ -49,8 +52,7 @@ python3 engine/scan.py <folder> -o graph.json --config engine/default_config.jso
 4. Pages → Custom domain `handover.dianasimpsonhernandez.com` → tick *Enforce HTTPS* once the certificate is issued.
 
 ## Not built yet (in order)
-- Unlock service (Cloudflare Worker): Stripe webhook issues a licence key by email; `POST {licence}` returns fragments. Sees payment + email only.
-- Stripe Payment Link ($99, Dish Creative Ltd) → `js/config.js` `STRIPE_LINK`.
+- Deploy the worker and set `API_BASE` + `STRIPE_PUBLISHABLE_KEY` (worker/README.md).
 - Terms of sale + privacy notice pages, then restore the Legal links in the footer.
 - Proof test: a fresh AI with vs without the pack, scored on 30 questions — the landing-page number.
 - A card in the frameworks gallery (`frameworks/data/frameworks.json`).

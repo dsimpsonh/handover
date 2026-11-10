@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANDOVER — your licence</title>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/handover.css">
+<style>
+  #ok h2 { line-height: 1.15; }
+  .next-steps { margin: 1.25rem 0 0 1.2rem; color: var(--ink-soft); font-size: 15px; }
+  .next-steps li { padding: 0.2rem 0; }
+  .key { font-family: var(--font-mono); font-size: clamp(1.1rem, 4vw, 1.7rem); letter-spacing: 0.08em; padding: 1rem 1.25rem;
+         background: var(--paper-warm); border-radius: 12px; overflow-wrap: anywhere; margin: 1rem 0; }
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a href="/" class="nav-mark"><b>HANDOVER</b> <span>by Diana Simpson Hernandez</span></a>
+</div></nav>
+<main class="wrap">
+  <header class="app-head">
+    <div class="eyebrow">HANDOVER · payment</div>
+    <h1 id="title">Confirming your payment…</h1>
+  </header>
+  <section class="card" id="ok" hidden>
+    <h2>Thank you. HANDOVER is yours.</h2>
+    <p>Here's your licence key. Think of it as the keys to the office: it's already saved in this browser, and it works anywhere you paste it.</p>
+    <div class="key" id="key"></div>
+    <div class="row">
+      <button class="btn" id="copy" type="button">Copy key</button>
+      <a class="btn btn-primary" href="/app/">Build my full pack <span class="arrow">→</span></a>
+    </div>
+    <ol class="next-steps">
+      <li>Build your pack.</li>
+      <li>Paste it into your new AI.</li>
+      <li>Let it read the room. It will write your Knowledge Blueprint and the instructions it needs to keep working the way you do.</li>
+    </ol>
+    <p class="hx-note" style="margin-top:1rem">Your files stayed on your computer the whole time. Stripe has emailed your receipt, and your key is recorded against your payment in case you ever lose it. As you agreed at checkout, your key has now been delivered, so the 14-day cancellation right has ended; your rights if anything is faulty are unaffected (<a href="/terms/">Terms of sale</a>). Need help? <a href="mailto:dianasimpsonhernandez@gmail.com">dianasimpsonhernandez@gmail.com</a>.</p>
+  </section>
+  <section class="card" id="wait" hidden>
+    <h2>Still processing</h2>
+    <p id="waitMsg">Your payment has not completed yet. This page checks again automatically.</p>
+  </section>
+</main>
+<script src="/js/config.js"></script>
+<script src="/js/return.js"></script>
+</body>
+</html>
