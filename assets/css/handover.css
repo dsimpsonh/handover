@@ -92,3 +92,26 @@ iframe.map { width: 100%; height: 760px; border: 1px solid var(--rule); border-r
 .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 @media (max-width: 560px) { .btn { padding: 0.7rem 1.1rem; } iframe.map { height: 560px; } }
 .card { scroll-margin-top: 84px; }
+
+/* scan progress panel */
+.run { margin-top: 1.25rem; border: 1px solid var(--rule); border-radius: 14px; padding: 1.25rem 1.4rem; background: linear-gradient(180deg, var(--paper-warm), #fff 70%); }
+.run-head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+.run-head h3 { margin: .35rem 0 0; font-size: clamp(1.25rem, 2.4vw, 1.7rem); letter-spacing: -0.02em; }
+.run-bar { height: 10px; border-radius: 99px; background: var(--rule-soft); margin: 1rem 0 .55rem; overflow: hidden; position: relative; }
+.run-bar i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--violet)); transition: width .3s var(--ease); }
+.run-bar.busy i { width: 35% !important; animation: run-slide 1.3s ease-in-out infinite; }
+@keyframes run-slide { from { left: -35%; } to { left: 100%; } }
+.run-meta { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 15px; color: var(--ink-soft); }
+.run-meta b { color: var(--ink); }
+.run-file { margin-top: .4rem; min-height: 1.3em; font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.run-steps { list-style: none; margin: 1rem 0 .75rem; padding: 0; display: grid; gap: .45rem; }
+.run-steps li { position: relative; padding-left: 1.9rem; font-size: 15px; color: var(--muted); }
+.run-steps li::before { content: ""; position: absolute; left: 0; top: .1rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; border: 2px solid var(--rule); box-sizing: border-box; }
+.run-steps li.on { color: var(--ink); font-weight: 650; }
+.run-steps li.on::before { border-color: var(--accent); border-right-color: transparent; animation: run-spin .8s linear infinite; }
+.run-steps li.done { color: var(--ink-soft); }
+.run-steps li.done::before { content: "✓"; border: 0; background: #2E9E6B; color: #fff; font-size: .72rem; font-weight: 800; display: grid; place-items: center; }
+.run-steps li.skip { opacity: .45; }
+.run-steps li .sub { display: block; font-weight: 400; font-size: 13.5px; color: var(--accent); margin-top: 2px; }
+@keyframes run-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .run-steps li.on::before, .run-bar.busy i { animation: none; } }

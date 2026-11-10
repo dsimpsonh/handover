@@ -1,17 +1,37 @@
 # HANDOVER → DSH website thread: handoff brief
 
-From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r5 (landing page: switching-providers story, walkthrough animation, what you get)
+From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r6 (app: live progress panel and large-folder support)
 Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
-## ▶ r5 — push this now (10 Nov 2026)
+## ▶ r6 — push this now (10 Nov 2026)
+
+App only (`/app/`). No landing, checkout, payment or Worker changes, and nothing for Diana to run.
+
+- **Live progress panel** while a folder is processed: a stage title, a ticking checklist (finding files → sorting → reading documents → fingerprinting photos/videos → connecting files and spotting rules and decisions → preparing review), a progress bar, counts and sizes, the file being read now, time left, and Cancel.
+- **Large folders:** files are now processed one at a time and only their text is kept, so business-size folders no longer run the tab out of memory. Photos, video and archives are fingerprinted and listed, not read. Tested on 1,866 files / 617 MB; the browser result matches the CLI byte for byte.
+- A note under "Choose folder" explains that the browser's own "upload" prompt doesn't mean anything is uploaded.
+- Merged with the website thread's `handover.css` fix (974e7d1); your changes are kept.
+
+Changed files: `engine/scan.py` · `js/worker.js` · `js/app.js` · `app/index.html` · `assets/css/handover.css` · `tests/test_scan_stream.py` (new) · `HANDOFF_DSH_WEBSITE_THREAD.md` · `MANIFEST.sha256`
+
+```bash
+cd ~/Sites/handover && shasum -a 256 -c MANIFEST.sha256 | grep -c ': OK$'   # expect 43
+git add engine/scan.py js/worker.js js/app.js app/index.html assets/css/handover.css tests/test_scan_stream.py HANDOFF_DSH_WEBSITE_THREAD.md MANIFEST.sha256
+git commit -m "HANDOVER r6: live progress panel, streaming scan for large folders"
+git push
+```
+
+After the push, open `/app/`, choose a folder and check the panel appears straight away and the steps tick off.
+
+## ✓ r5 — pushed 10 Nov 2026 (afae2c6)
 
 r4 is live and the payment switches are on (checked from outside: terms tick box required, Stripe Managed Payments active). r5 changes the landing page only. **No payment, checkout or Worker changes and nothing for Diana to run.**
 
 Changed files: `index.html` · `assets/css/demo.css` (new) · `js/demo.js` (new) · `.gitignore` (now ignores `brand/`, marketing source files that don't belong on the site) · `HANDOFF_DSH_WEBSITE_THREAD.md` · `MANIFEST.sha256`
 
 ```bash
-cd ~/Sites/handover && shasum -a 256 -c MANIFEST.sha256 | grep -c ': OK$'   # expect 42
+cd ~/Sites/handover && shasum -a 256 -c MANIFEST.sha256 | grep -c ': OK$'   # expect 43
 git status --short --ignored                                                # private/ and brand/ must show as !! (ignored)
 git add index.html assets/css/demo.css js/demo.js .gitignore HANDOFF_DSH_WEBSITE_THREAD.md MANIFEST.sha256
 git commit -m "HANDOVER r5: landing page for switching AI providers, walkthrough animation, what you get"
@@ -22,7 +42,7 @@ After the push, check `https://handover.dianasimpsonhernandez.com/`: the hero sh
 
 ## ✓ Launch sequence (r4) — done 10 Nov 2026 — do these in order
 
-**1. Website thread:** check `shasum -a 256 -c MANIFEST.sha256` (expect 42 OK), confirm `private/` is git-ignored, push, then tell Diana "pushed".
+**1. Website thread:** check `shasum -a 256 -c MANIFEST.sha256` (expect 43 OK), confirm `private/` is git-ignored, push, then tell Diana "pushed".
 
 **2. Diana, only after the push — paste this one line into Terminal:**
 

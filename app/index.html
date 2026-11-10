@@ -39,9 +39,29 @@
         <span class="btn btn-primary" id="pickBtn" aria-disabled="true">Choose folder <span class="arrow">→</span></span>
       </div>
       <p class="hx-note" style="margin-top:0.9rem" id="engineState">Loading the engine…</p>
+      <p class="hx-note" style="margin-top:0.4rem">Your browser may ask to “upload” the folder. That's its standard wording: HANDOVER reads it inside this tab and nothing leaves your computer.</p>
     </label>
     <div class="privacy-line">Your files never leave this computer. They are read inside this tab and discarded when you close it.</div>
-    <div class="progress hidden" id="prog"><i></i></div>
+
+    <div class="run hidden" id="run" aria-live="polite">
+      <div class="run-head">
+        <div><div class="eyebrow" id="runEyebrow">Working on your folder</div><h3 id="runTitle">Getting ready…</h3></div>
+        <button class="btn" type="button" id="cancelBtn">Cancel</button>
+      </div>
+      <div class="run-bar"><i id="runBar"></i></div>
+      <div class="run-meta"><span id="runCount"></span><span id="runEta"></span></div>
+      <div class="run-file" id="runFile"></div>
+      <ol class="run-steps" id="runSteps">
+        <li data-k="find">Finding your files</li>
+        <li data-k="sort">Sorting what to read and what to list</li>
+        <li data-k="read">Reading your documents</li>
+        <li data-k="hash">Fingerprinting photos, videos and other files</li>
+        <li data-k="map">Connecting files, spotting rules and decisions</li>
+        <li data-k="review">Preparing your review</li>
+      </ol>
+      <p class="hx-note" id="runNote">Everything stays in this tab. Keep it open until this finishes.</p>
+    </div>
+
     <div class="status" id="status"></div>
   </section>
 

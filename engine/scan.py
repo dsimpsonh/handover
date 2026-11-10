@@ -498,7 +498,22 @@ def _bounded(lines):
                 yield j, m.group(0)
 
 
-def scan(files, config: dict | None = None, root_label: str = "corpus") -> dict:
+def prepare(rel: str, raw: bytes, config: dict | None = None) -> dict:
+    """Reduce one file to what scan() needs, so a caller can stream files one at a time and hold only text.
+    scan({rel: prepare(rel, raw)}) == scan({rel: raw}) byte for byte (tested). Raw bytes can be dropped afterwards."""
+    cfg = merge_config(config or {})
+    size = len(raw)
+    out = {"size": size, "sha256": sha(raw)}
+    if size > cfg["max_file_bytes"]:
+        return out                                   # inventoried, not mined (same as a too-large stub)
+    if ext_of(rel) in cfg["data_ext"] and size > cfg["max_data_bytes"]:
+        out["pre"] = (None, "skipped:large_data", None)
+        return out
+    out["pre"] = extract(rel, raw)
+    return out
+
+
+def scan(files, config: dict | None = None, root_label: str = "corpus", progress=None) -> dict:
     """files: iterable of (relpath, bytes) or dict relpath->bytes. Pure: no I/O, no clock."""
     cfg = merge_config(config)
     items = sorted(files.items() if isinstance(files, dict) else files)
@@ -546,7 +561,14 @@ def scan(files, config: dict | None = None, root_label: str = "corpus") -> dict:
         add_node({"id": "ext:" + xid, "kind": "external", "label": xid})
 
     totals = {"bytes": 0, "lines": 0}
-    for rel, raw in items:
+    if progress is not None:   # observer only: never changes the output. Weight = lines to mine (+1 per file).
+        weights = [1 + (len(r["pre"][0] or ()) if isinstance(r, dict) and r.get("pre") else 0) for _, r in items]
+        w_total, w_done = sum(weights), 0
+    for k_item, (rel, raw) in enumerate(items):
+        if progress is not None:
+            if k_item % 10 == 0:
+                progress(k_item, len(items), rel, w_done, w_total)
+            w_done += weights[k_item]
         top = rel.split("/", 1)[0] if "/" in rel else "(root)"
         stub = isinstance(raw, dict)
         size = int(raw["size"]) if stub else len(raw)
@@ -556,13 +578,14 @@ def scan(files, config: dict | None = None, root_label: str = "corpus") -> dict:
                 RX_ARCHIVED.search(rel))}
         add_node(n)
         totals["bytes"] += size
-        if stub or size > cfg["max_file_bytes"]:
+        pre = raw.get("pre") if stub else None   # already extracted, file by file (browser streaming path)
+        if (stub and pre is None) or size > cfg["max_file_bytes"]:
             n["extractor"] = "skipped:too_large"
             continue
         if n["ext"] in cfg["data_ext"] and size > cfg["max_data_bytes"]:
             n["extractor"] = "skipped:large_data"
             continue
-        lines, how, srcmap = extract(rel, raw)
+        lines, how, srcmap = pre if pre is not None else extract(rel, raw)
         n["extractor"] = how
         if lines is None:
             continue
@@ -703,10 +726,11 @@ def scan(files, config: dict | None = None, root_label: str = "corpus") -> dict:
     }
 
 
-def scan_to_json(files, config_json: str = "{}", root_label: str = "corpus") -> str:
-    """Browser entry point. files: dict relpath -> bytes (Pyodide converts a JS Map of Uint8Array via to_py)."""
+def scan_to_json(files, config_json: str = "{}", root_label: str = "corpus", progress=None) -> str:
+    """Browser entry point. files: dict relpath -> bytes, or relpath -> prepare() result (streamed).
+    progress(files_done, files_total, relpath, work_done, work_total) is called during mining; it only observes."""
     files = {k: (dict(v) if isinstance(v, dict) else bytes(v)) for k, v in dict(files).items()}
-    return dumps(scan(files, json.loads(config_json or "{}"), root_label)).decode("utf-8")
+    return dumps(scan(files, json.loads(config_json or "{}"), root_label, progress)).decode("utf-8")
 
 
 # ------------------------------------------------------------------------------------------------- CLI

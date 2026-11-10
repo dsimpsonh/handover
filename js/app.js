@@ -10,10 +10,10 @@
   };
 
   // ---- worker RPC -------------------------------------------------------------------------------------------
-  const worker = new Worker("/js/worker.js");
+  let worker = null;
   let seq = 0;
   const waiting = new Map();
-  worker.onmessage = (ev) => {
+  const onWorkerMessage = (ev) => {
     const m = ev.data;
     if (m.cmd === "progress") return onProgress(m);
     const p = waiting.get(m.id);
@@ -21,6 +21,11 @@
     waiting.delete(m.id);
     m.ok ? p.resolve(m.result) : p.reject(new Error(m.error));
   };
+  function startWorker() {
+    worker = new Worker("/js/worker.js");
+    worker.onmessage = onWorkerMessage;
+    return rpc("init");
+  }
   const rpc = (cmd, data = {}) => new Promise((resolve, reject) => {
     const id = ++seq;
     waiting.set(id, { resolve, reject });
@@ -41,12 +46,89 @@
     $("#s3").classList.toggle("hidden", n < 3);
   }
   const setStatus = (t) => { $("#status").textContent = t; };
+
+  // ---- progress panel ---------------------------------------------------------------------------------------
+  const ORDER = ["find", "sort", "read", "hash", "map", "review"];
+  const TITLES = { find: "Finding your files…", sort: "Sorting what to read…", read: "Reading your documents…",
+    hash: "Fingerprinting photos, videos and other files…", map: "Connecting the dots…", review: "Preparing your review…" };
+  const MAP_SUBS = ["Following links between files", "Spotting rules", "Spotting decisions and the reasons behind them",
+    "Matching skills and instructions to the documents they use", "Checking which documents look superseded", "Building your map"];
+  const R = { stage: null, t0: 0, plan: null, subTimer: null, elapsed: null };
+  const n = (x) => Number(x || 0).toLocaleString();
+  const mb = (b) => b >= 1e9 ? (b / 1e9).toFixed(1) + " GB" : b >= 1e6 ? Math.round(b / 1e6) + " MB" : Math.max(1, Math.round(b / 1e3)) + " KB";
+  const eta = (ms) => ms == null ? "Working out time left…" : ms < 45e3 ? "Less than a minute left"
+    : ms < 90e3 ? "About a minute left" : `About ${Math.round(ms / 6e4)} minutes left`;
+  function runStage(k) {
+    if (R.stage === k) return;
+    R.stage = k;
+    const i = ORDER.indexOf(k);
+    document.querySelectorAll("#runSteps li").forEach((li) => {
+      const j = ORDER.indexOf(li.dataset.k);
+      if (j < i && !li.classList.contains("skip")) li.className = "done";
+      else if (j === i) li.className = "on";
+      else if (!li.classList.contains("skip")) li.className = "";
+      const sub = li.querySelector(".sub"); if (sub && j !== i) sub.remove();
+    });
+    $("#runTitle").textContent = TITLES[k];
+    $("#runFile").textContent = "";
+    clearInterval(R.subTimer);
+    const busy = k === "find" || k === "sort" || k === "map" || k === "review";
+    $("#runBar").parentElement.classList.toggle("busy", busy);
+    if (k === "map") {       // one engine call: show what it is doing, in turn
+      let s = 0;
+      const li = document.querySelector('#runSteps li[data-k="map"]');
+      const sub = document.createElement("span"); sub.className = "sub"; li.appendChild(sub);
+      const show = () => { sub.textContent = MAP_SUBS[s % MAP_SUBS.length] + "…"; s++; };
+      show(); R.subTimer = setInterval(show, 1600);
+      $("#runCount").innerHTML = `<b>${n(R.plan && R.plan.docs)}</b> documents read · <b>${n(R.plan && R.plan.others)}</b> other files listed`;
+      $("#runEta").textContent = "Almost there";
+    }
+  }
+  function runOpen() {
+    $("#run").classList.remove("hidden"); $("#drop").classList.add("hidden"); setStatus("");
+    document.querySelectorAll("#runSteps li").forEach((li) => { li.className = ""; const s = li.querySelector(".sub"); if (s) s.remove(); });
+    R.stage = null; R.plan = null; R.t0 = performance.now();
+    $("#runBar").style.width = "0"; $("#runCount").textContent = ""; $("#runEta").textContent = "";
+    $("#runNote").textContent = "Everything stays in this tab. Keep it open until this finishes.";
+  }
+  function runClose() { clearInterval(R.subTimer); $("#run").classList.add("hidden"); $("#drop").classList.remove("hidden"); }
   function onProgress(m) {
-    $("#prog").classList.remove("hidden");
-    const pct = m.phase === "read" ? Math.min(90, Math.round(90 * m.done / Math.max(1, m.total))) : 95;
-    $("#prog i").style.width = pct + "%";
-    setStatus(m.phase === "read" ? `Reading ${m.done.toLocaleString()} of ${m.total.toLocaleString()} files…`
-                                 : `Mapping ${m.total.toLocaleString()} files…`);
+    if (m.stage === "find") {
+      runStage("find");
+      $("#runCount").innerHTML = `<b>${n(m.found)}</b> files found so far`;
+      return;
+    }
+    if (m.stage === "sort") {
+      runStage("sort");
+      R.plan = m;
+      $("#runCount").innerHTML = `<b>${n(m.docs)}</b> documents to read (${mb(m.docBytes)}) · <b>${n(m.others)}</b> other files to list (${mb(m.otherBytes)})`;
+      if (!m.docs) document.querySelector('#runSteps li[data-k="read"]').className = "skip";
+      if (!m.others) document.querySelector('#runSteps li[data-k="hash"]').className = "skip";
+      if (m.docs > 3000 || m.docBytes > 2e9 || m.otherBytes > 20e9)
+        $("#runNote").textContent = "That's a big folder, so this can take a while. Keep this tab open; you can carry on working in other tabs.";
+      return;
+    }
+    if (m.stage === "read" || m.stage === "hash") {
+      runStage(m.stage);
+      const pct = m.bytesTotal ? m.bytesDone / m.bytesTotal : m.done / Math.max(1, m.total);
+      $("#runBar").style.width = Math.max(2, Math.round(100 * pct)) + "%";
+      $("#runCount").innerHTML = m.stage === "read"
+        ? `<b>${n(m.done)}</b> of <b>${n(m.total)}</b> documents · ${mb(m.bytesDone)} of ${mb(m.bytesTotal)}`
+        : `<b>${n(m.done)}</b> of <b>${n(m.total)}</b> other files · ${mb(m.bytesDone)} of ${mb(m.bytesTotal)}`;
+      $("#runEta").textContent = eta(m.etaMs);
+      $("#runFile").textContent = m.file ? (m.stage === "read" ? "Reading " : "Listing ") + m.file : "";
+      return;
+    }
+    if (m.stage === "map") {
+      runStage("map");
+      if (m.done != null) {
+        $("#runBar").parentElement.classList.remove("busy");
+        $("#runBar").style.width = Math.max(2, Math.round(100 * (m.frac != null ? m.frac : m.done / Math.max(1, m.total)))) + "%";
+        $("#runCount").innerHTML = `Spotting rules and decisions in <b>${n(m.done)}</b> of <b>${n(m.total)}</b> files`;
+        $("#runEta").textContent = eta(m.etaMs);
+        $("#runFile").textContent = m.file ? "Checking " + m.file : "";
+      }
+    }
   }
 
   // ---- unlock -----------------------------------------------------------------------------------------------
@@ -64,39 +146,65 @@
   }
 
   // ---- 1. choose ----------------------------------------------------------------------------------------------
-  rpc("init").then(() => {
+  startWorker().then(() => {
     $("#engineState").textContent = "Ready. Nothing is uploaded.";
     $("#pickBtn").removeAttribute("aria-disabled");
     $("#picker").disabled = false;
     window.hxReady = true;
   }).catch((e) => { $("#engineState").textContent = "The engine could not load: " + e.message; });
 
+  let cancelled = false;
   async function runScan(entries) {
-    if (!entries.length) return;
-    setStatus("Starting…");
+    if (!entries.length) { runClose(); setStatus("That folder looks empty."); return; }
+    cancelled = false;
+    runStage("find"); $("#runCount").innerHTML = `<b>${n(entries.length)}</b> files found`;
     try {
       const r = await rpc("scan", { entries });
       window.hxScan = { sha256: r.sha256, files: r.files, readMs: r.readMs, scanMs: r.scanMs };
-      $("#prog i").style.width = "100%";
+      runStage("review");
       S.graph = JSON.parse(r.graph);
       S.review = JSON.parse(await rpc("review"));
+      document.querySelectorAll("#runSteps li").forEach((li) => { if (!li.classList.contains("skip")) li.className = "done"; });
+      $("#runBar").parentElement.classList.remove("busy"); $("#runBar").style.width = "100%";
+      const secs = Math.round((performance.now() - R.t0) / 1000);
+      $("#runTitle").textContent = `Done in ${secs < 90 ? secs + " seconds" : Math.round(secs / 60) + " minutes"}.`;
       renderReview();
       step(2);
-    } catch (e) { setStatus("Something went wrong: " + e.message); }
+      setTimeout(runClose, 400);
+    } catch (e) {
+      if (cancelled) return;
+      runClose(); setStatus("Something went wrong: " + e.message);
+    }
   }
-  $("#picker").addEventListener("change", (ev) =>
-    runScan([...ev.target.files].map((f) => ({ path: f.webkitRelativePath || f.name, file: f }))));
+  $("#cancelBtn").addEventListener("click", () => {
+    cancelled = true;
+    worker.terminate();
+    waiting.forEach((p) => p.reject(new Error("cancelled"))); waiting.clear();
+    runClose(); setStatus("Stopped. Nothing was kept. Choose a folder to start again.");
+    $("#engineState").textContent = "Restarting the engine…"; $("#picker").disabled = true; window.hxReady = false;
+    startWorker().then(() => { $("#engineState").textContent = "Ready. Nothing is uploaded."; $("#picker").disabled = false; window.hxReady = true; });
+  });
+  $("#picker").addEventListener("change", (ev) => {
+    runOpen();
+    const entries = [...ev.target.files].map((f) => ({ path: f.webkitRelativePath || f.name, file: f }));
+    ev.target.value = "";
+    runScan(entries);
+  });
   const drop = $("#drop");
   drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
   drop.addEventListener("dragleave", () => drop.classList.remove("over"));
   drop.addEventListener("drop", async (e) => {
     e.preventDefault(); drop.classList.remove("over");
     if (!window.hxReady) return;
+    runOpen(); runStage("find");
     const entries = [];
+    let lastPing = 0;
     const walk = async (entry, prefix) => {
       if (entry.isFile) {
         const file = await new Promise((res, rej) => entry.file(res, rej));
         entries.push({ path: prefix + entry.name, file });
+        const now = performance.now();
+        if (now - lastPing > 150) { lastPing = now; onProgress({ stage: "find", found: entries.length }); }
       } else if (entry.isDirectory) {
         const reader = entry.createReader();
         let batch;
