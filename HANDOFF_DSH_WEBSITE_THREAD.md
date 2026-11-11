@@ -1,10 +1,26 @@
 # HANDOVER → DSH website thread: handoff brief
 
-From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r7 (gift licences, Cloudflare Pages standby)
+From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r8 (Cloudflare sign-out check)
 Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
-## ▶ r7 — push this now (10 Nov 2026)
+## ▶ r8 — push this now (11 Nov 2026)
+
+Legal & Compliance rule of 11 Nov 2026 on Cloudflare sign-ins. No page changes.
+
+- `worker/gift.sh`: gift keys no longer store the person's name in Cloudflare (marker `gift` only; names stay in `private/gifts.csv`); `--scrub` rewrites existing gift keys the same way; `--signout` always signs out and reports if a Claude Code session was open.
+- `worker/gift.sh`: new `bash gift.sh --signout` (signs out of Cloudflare, then reads back that no Wrangler `default.toml` holds a token line); every key it prints now ends with a reminder to sign out.
+- `worker/deploy.sh`: signs out of Cloudflare whenever it ends (finished, failed or interrupted) and will not start while a Claude Code session is open.
+- `worker/README.md`: Cloudflare sign-in rules.
+
+```bash
+cd ~/Sites/handover && shasum -a 256 -c MANIFEST.sha256 | grep -c ': OK$'   # expect 45
+git add worker/gift.sh worker/deploy.sh worker/README.md HANDOFF_DSH_WEBSITE_THREAD.md MANIFEST.sha256
+git commit -m "HANDOVER r8: Cloudflare sign-out check for gift licences and deploys"
+git push
+```
+
+## ✓ r7 — pushed
 
 No page changes visitors will see. Nothing for Diana to run except the one-off standby setup below.
 

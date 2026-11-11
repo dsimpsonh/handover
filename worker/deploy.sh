@@ -2,11 +2,32 @@
 # HANDOVER licence service: one-command deploy to Cloudflare Workers.
 # Run from Terminal on your Mac:   cd ~/Sites/handover/worker && bash deploy.sh
 # Safe to run again: it skips anything already set up. Secrets are typed into hidden prompts, never echoed or saved.
+# It signs you out of Cloudflare when it ends, so each run asks you to log in again. Close Claude Code before running it.
 set -euo pipefail
 cd "$(dirname "$0")"
 
 say()  { printf "\n\033[1m%s\033[0m\n" "$*"; }
 fail() { printf "\n\033[31m%s\033[0m\n" "$*"; exit 1; }
+
+# Sign-in safety (Legal & Compliance, 11 Nov 2026).
+# 1. Never start while a Claude Code session is open on this Mac.
+# 2. Always sign out of Cloudflare when this script ends, however it ends: finished, failed, Ctrl-C or closed window.
+if pgrep -x claude >/dev/null 2>&1 || pgrep -f "@anthropic-ai/claude-code" >/dev/null 2>&1; then
+  fail "A Claude Code session is open on this Mac. Close it, then run this again. Nothing was done."
+fi
+signout_on_exit() {
+  rc=$?; trap - EXIT INT TERM HUP
+  say "Signing out of Cloudflare"
+  if bash ./gift.sh --signout; then :; else
+    printf "\n\033[31m%s\033[0m\n" "NOT SIGNED OUT. Run:  bash gift.sh --signout"
+    [ "$rc" -ne 0 ] || rc=1
+  fi
+  exit "$rc"
+}
+trap signout_on_exit EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
 
 say "1/6  Checking Node.js"
 command -v node >/dev/null || fail "Node.js is not installed. Install it with:  brew install node   (or from nodejs.org), then run this again."

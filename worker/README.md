@@ -73,3 +73,15 @@ Keep `AUTOMATIC_TAX = "false"` until Andy confirms the VAT position. Once Stripe
 ## Tests
 `node --test test/worker.test.mjs` runs 11 tests: licence derivation, session parameters, idempotent claim, unpaid refused, forged or revoked keys refused, webhook signature, CORS, and the terms tick box.
 `../tests/e2e_purchase.cjs` runs the real Worker code behind a browser: claim → saved key → unlocked pack, and checks that a forged key is refused.
+
+### Cloudflare sign-in rules (Legal & Compliance, 11 Nov 2026)
+
+- Sign in to Cloudflare (`npx wrangler@4 login`) only when no Claude Code session is open.
+- End every sitting (gift keys, deploys, secrets) with `bash gift.sh --signout`. It signs out and reads back that no `default.toml` holds a token line.
+  - Pattern counted, without regard to case: `oauth_token|refresh_token|api_token|authorization|bearer|token`.
+  - Files read: `~/Library/Preferences/.wrangler/config/default.toml`, `~/.wrangler/config/default.toml`, `~/.config/.wrangler/config/default.toml`.
+- `deploy.sh` signs out by itself when it ends, however it ends (finished, failed, Ctrl-C, closed window), using the same `gift.sh --signout` read-back. It refuses to start while a Claude Code session is open. Each deploy therefore asks you to log in again.
+- `gift.sh` refuses to create, revoke or scrub while a Claude Code session is open (a process named `claude`, or one running `@anthropic-ai/claude-code`). Close it first.
+- `--signout` never refuses. If it detects a Claude Code session it still signs out and reads back, then prints an "N2 DEVIATION" line to report to Legal (time only).
+- Gift keys are stored in Cloudflare with the marker `gift` only. Names live in `private/gifts.csv` on the Mac. `bash gift.sh --scrub` rewrites existing gift keys without names; add any gift key that is not in the record after it, e.g. `bash gift.sh --scrub HX-ABCD-EFGH-JKMN`.
+- Pending decision D-1: the Wrangler login may be replaced by a Cloudflare API key limited to HANDOVER's own resources, held in the locked keychain.
