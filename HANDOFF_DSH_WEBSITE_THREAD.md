@@ -4,7 +4,15 @@ From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r10 (Cloudflare site 
 Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
-## ▶ r10 — commit when Diana next has a push sitting (11 Nov 2026)
+## ▶ r11 — commit at Diana's next push sitting (11 Nov 2026)
+- New `404.html` (site "page not found" page). GitHub Pages and Cloudflare Pages both serve it for unknown addresses with status 404.
+- Why: without it, the Cloudflare Pages copy answers every unknown address with the home page and status 200. No private file was served; the status was wrong.
+- `site-worker/build.sh`: `404.html` added to the publish list (32 files).
+- Files: `404.html`, `site-worker/build.sh`, `HANDOFF_DSH_WEBSITE_THREAD.md`, `MANIFEST.sha256` (50 entries).
+
+Commit message: `HANDOVER r11: 404 page so the Cloudflare copy returns 404 for unknown addresses`
+
+## r10 — commit when Diana next has a push sitting (11 Nov 2026)
 
 HO-8 (dev-debt brief 550cfede): a Cloudflare-hosted copy of the site, ready to migrate to. Nothing is deployed and nothing about the live site changes.
 

@@ -5,7 +5,7 @@
 # No login, no network. Safe to run at any time.
 set -euo pipefail
 cd "$(dirname "$0")"
-ALLOW="index.html favicon.ico _headers app checkout terms privacy assets js engine vendor"   # everything else in the repo stays out
+ALLOW="index.html 404.html favicon.ico _headers app checkout terms privacy assets js engine vendor"   # everything else in the repo stays out
 DIST="${DIST:-./dist}"
 die() { printf "\n\033[31m%s\033[0m\n" "$*" >&2; exit 1; }
 ROOT=$(git rev-parse --show-toplevel)
