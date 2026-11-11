@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """kb_scanner/scan.py — Knowledge Blueprint scanner (engine layer 1).
 
-Forked from Aletheai_Global/_SYSTEM_MAP/build_system_map.py (8 Nov 2026 build) and generalised:
+Generalised from an earlier single-project system-map script (8 Nov 2026 build):
   * input is ANY folder (or, in the browser, the files a user picks) — the scanner builds its own inventory;
-  * edge patterns (people, external systems, custom tags, rule lines) come from a config, not Aletheai constants;
+  * edge patterns (people, external systems, custom tags, rule lines) come from a config, not built-in constants;
   * the core is a pure function  scan(files, config) -> graph  with no file system, clock or network access,
     so the SAME module runs under CPython (CLI) and Pyodide (browser) and gives byte-identical graph.json.
 

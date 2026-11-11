@@ -1,10 +1,24 @@
 # HANDOVER → DSH website thread: handoff brief
 
-From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r9 (Wrangler pin, store check)
+From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r10 (Cloudflare site copy, not deployed)
 Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
-## ▶ r9 — push this now (11 Nov 2026)
+## ▶ r10 — commit when Diana next has a push sitting (11 Nov 2026)
+
+HO-8 (dev-debt brief 550cfede): a Cloudflare-hosted copy of the site, ready to migrate to. Nothing is deployed and nothing about the live site changes.
+
+- `site-worker/wrangler.toml`, `site-worker/build.sh`, `site-worker/deploy-site.sh`, `site-worker/parity.py` (all new).
+- `.gitignore`: ignores the build output and Python cache.
+- `deploy-site.sh` is NOT to be run until Legal has accepted it and the deploy credential (D-1) is decided.
+- `engine/scan.py`, `engine/render.py`: three comment lines reworded (Diana, 11 Nov). Code unchanged: identical apart from the top comment block.
+- `worker/deploy.sh`: one message reworded (line 39). No other change.
+
+Diana pushes, in a rule card v2.1 sitting (card Login lines, then the N1 runner). Files to add:
+`site-worker/wrangler.toml site-worker/build.sh site-worker/deploy-site.sh site-worker/parity.py engine/scan.py engine/render.py worker/deploy.sh .gitignore HANDOFF_DSH_WEBSITE_THREAD.md MANIFEST.sha256`
+Commit message: `HANDOVER r10: Cloudflare-hosted site copy (HO-8, not deployed); comment wording`
+
+## ✓ r9 — pushed 11 Nov 2026 (213dfe1)
 
 Legal & Compliance rule card v2.1. No page changes. Push r8 (`7ca5a15`) and r9 together if r8 has not gone up yet.
 

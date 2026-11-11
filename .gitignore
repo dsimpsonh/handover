@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .DS_Store
 brand/
+site-worker/dist/
+site-worker/DIST_MANIFEST.txt
+__pycache__/

@@ -1,0 +1,12 @@
+# HANDOVER static site on Cloudflare (HO-8). A copy of the public site, served from the DiSH Creative account.
+# Not the live site: GitHub Pages stays authoritative until Diana says "migrate". No custom domain, no routes.
+name = "handover-site"
+account_id = "0efcbfb2427e282f755a74ce17b995d4"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+[assets]
+directory = "./dist"
+html_handling = "auto-trailing-slash"
+not_found_handling = "none"

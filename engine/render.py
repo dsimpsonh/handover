@@ -1,6 +1,6 @@
 """kb_scanner/render.py — interactive map for a kb-blueprint-graph/1 graph.
 
-Adapted from Aletheai_Global/_SYSTEM_MAP/build_system_map.py::render_html (workstreams -> top-level folders,
+Adapted from the HTML renderer of an earlier system-map script (workstreams -> top-level folders,
 inventory header -> corpus hash). Pure function, stdlib only: runs under CPython and Pyodide, so the CLI and the
 browser produce the same page from the same graph.
 """

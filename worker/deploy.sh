@@ -36,7 +36,7 @@ NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]')
 W="npx --yes wrangler@4.154.0"
 [ -f ../private/fragments.json ] || fail "../private/fragments.json is missing; the service bundles it. Restore it from the tech thread before deploying."
 
-say "2/6  Cloudflare account (HANDOVER must deploy to the DiSH Creative account, never Aletheai's)"
+say "2/6  Cloudflare account (HANDOVER must deploy to the DiSH Creative account and no other)"
 if grep -qE '^account_id *= *"[0-9a-f]{32}"' wrangler.toml; then
   echo "Pinned to account $(grep -oE '[0-9a-f]{32}' <<<"$(grep '^account_id' wrangler.toml)")."
   $W whoami 2>/dev/null | grep -qi "logged in" || $W login
