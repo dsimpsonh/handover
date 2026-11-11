@@ -1,10 +1,25 @@
 # HANDOVER → DSH website thread: handoff brief
 
-From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r8 (Cloudflare sign-out check)
+From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r9 (Wrangler pin, store check)
 Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
-## ▶ r8 — push this now (11 Nov 2026)
+## ▶ r9 — push this now (11 Nov 2026)
+
+Legal & Compliance rule card v2.1. No page changes. Push r8 (`7ca5a15`) and r9 together if r8 has not gone up yet.
+
+- `worker/gift.sh` and `worker/deploy.sh`: Wrangler pinned to `wrangler@4.154.0` exactly.
+- `worker/gift.sh`: new `bash gift.sh --check`, a read-back of the licence store that shows no values (per key: stored as `gift` only, yes or no). Keys are shown by first and last block only.
+- `worker/README.md`: the two points above.
+
+```bash
+cd ~/Sites/handover && shasum -a 256 -c MANIFEST.sha256 | grep -c ': OK$'   # expect 45
+git add worker/gift.sh worker/deploy.sh worker/README.md HANDOFF_DSH_WEBSITE_THREAD.md MANIFEST.sha256
+git commit -m "HANDOVER r9: pin Wrangler 4.154.0, value-free licence store check"
+git push
+```
+
+## ✓ r8 — committed 11 Nov 2026 (7ca5a15)
 
 Legal & Compliance rule of 11 Nov 2026 on Cloudflare sign-ins. No page changes.
 

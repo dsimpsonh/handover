@@ -52,7 +52,7 @@ Run every command from `~/Sites/handover/worker`.
 ## Terms of sale and the 14-day waiver (UK)
 HANDOVER delivers the key straight away, so UK law needs the buyer's express consent and acknowledgement that the 14-day cancellation right ends on delivery.
 - **HANDOVER checkout (`/checkout/`)**: a required tick box above the payment form; the Stripe form only loads once it is ticked. The Worker stamps `consent = accepted <time> terms <version>` on the session and the payment (visible in Stripe → the payment → Metadata).
-- `REQUIRE_TERMS = "true"` in `wrangler.toml` makes the Worker refuse any checkout without the tick (then `npx wrangler@4 deploy`).
+- `REQUIRE_TERMS = "true"` in `wrangler.toml` makes the Worker refuse any checkout without the tick (then `npx wrangler@4.154.0 deploy`).
 - **Payment Link / QR (Stripe-hosted page)**: Stripe shows its own terms tick box once a Terms of service URL is saved on the account (dashboard.stripe.com/settings/public). Then: Payment Links → the link → Edit → Options → Require customers to accept your terms of service.
 - When the Terms change, update the date on `/terms/` and `TERMS_VERSION` in `js/checkout.js` together.
 
@@ -61,7 +61,7 @@ HANDOVER delivers the key straight away, so UK law needs the buyer's express con
 - `bash gift.sh "Maria Lopez, Houston workshop"` creates a valid key in the live licence store and prints it with what to send.
 - `bash gift.sh --list` shows every gift key; `bash gift.sh --revoke HX-…` switches one off.
 - Records are kept in `private/gifts.csv` (git-ignored, never published). Gift keys don't appear in Stripe.
-- If it says the Cloudflare login has expired: `npx wrangler@4 logout && npx wrangler@4 login`.
+- If it says the Cloudflare login has expired: `npx wrangler@4.154.0 logout && npx wrangler@4.154.0 login`.
 
 ## Tax
 Keep `AUTOMATIC_TAX = "false"` until Andy confirms the VAT position. Once Stripe Tax is set up, change it to `"true"`.
@@ -76,12 +76,14 @@ Keep `AUTOMATIC_TAX = "false"` until Andy confirms the VAT position. Once Stripe
 
 ### Cloudflare sign-in rules (Legal & Compliance, 11 Nov 2026)
 
-- Sign in to Cloudflare (`npx wrangler@4 login`) only when no Claude Code session is open.
+- Sign in to Cloudflare (`npx wrangler@4.154.0 login`) only when no Claude Code session is open.
 - End every sitting (gift keys, deploys, secrets) with `bash gift.sh --signout`. It signs out and reads back that no `default.toml` holds a token line.
   - Pattern counted, without regard to case: `oauth_token|refresh_token|api_token|authorization|bearer|token`.
   - Files read: `~/Library/Preferences/.wrangler/config/default.toml`, `~/.wrangler/config/default.toml`, `~/.config/.wrangler/config/default.toml`.
 - `deploy.sh` signs out by itself when it ends, however it ends (finished, failed, Ctrl-C, closed window), using the same `gift.sh --signout` read-back. It refuses to start while a Claude Code session is open. Each deploy therefore asks you to log in again.
 - `gift.sh` refuses to create, revoke or scrub while a Claude Code session is open (a process named `claude`, or one running `@anthropic-ai/claude-code`). Close it first.
 - `--signout` never refuses. If it detects a Claude Code session it still signs out and reads back, then prints an "N2 DEVIATION" line to report to Legal (time only).
+- Wrangler is pinned to `wrangler@4.154.0` exactly in `gift.sh` and `deploy.sh` (rule card v2.1). Use the same version for any command typed by hand.
+- `bash gift.sh --check` reads the store back without showing any value: per key, whether it is stored as `gift` only. Keys are shown by first and last block only.
 - Gift keys are stored in Cloudflare with the marker `gift` only. Names live in `private/gifts.csv` on the Mac. `bash gift.sh --scrub` rewrites existing gift keys without names; add any gift key that is not in the record after it, e.g. `bash gift.sh --scrub HX-ABCD-EFGH-JKMN`.
 - Pending decision D-1: the Wrangler login may be replaced by a Cloudflare API key limited to HANDOVER's own resources, held in the locked keychain.

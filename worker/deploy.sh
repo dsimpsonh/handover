@@ -33,7 +33,7 @@ say "1/6  Checking Node.js"
 command -v node >/dev/null || fail "Node.js is not installed. Install it with:  brew install node   (or from nodejs.org), then run this again."
 NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]')
 [ "$NODE_MAJOR" -ge 20 ] || fail "Node $NODE_MAJOR is too old; Wrangler needs Node 20+.  brew upgrade node"
-W="npx --yes wrangler@4"
+W="npx --yes wrangler@4.154.0"
 [ -f ../private/fragments.json ] || fail "../private/fragments.json is missing; the service bundles it. Restore it from the tech thread before deploying."
 
 say "2/6  Cloudflare account (HANDOVER must deploy to the DiSH Creative account, never Aletheai's)"
@@ -72,7 +72,7 @@ else
 fi
 
 say "4/6  Deploying the service"
-DEPLOY_OUT=$($W deploy </dev/null 2>&1) || { echo "$DEPLOY_OUT"; fail "Deploy failed (see above). If it asks you to choose a workers.dev subdomain, run  npx wrangler@4 deploy  once on its own, answer the question, then run this script again."; }
+DEPLOY_OUT=$($W deploy </dev/null 2>&1) || { echo "$DEPLOY_OUT"; fail "Deploy failed (see above). If it asks you to choose a workers.dev subdomain, run  npx wrangler@4.154.0 deploy  once on its own, answer the question, then run this script again."; }
 echo "$DEPLOY_OUT" | tail -5
 URL=$(printf "%s" "$DEPLOY_OUT" | grep -oE 'https://[a-z0-9.-]+\.workers\.dev' | head -1)
 [ -n "$URL" ] || fail "Deployed, but could not read the service address. Find it in the Cloudflare dashboard under Workers."
