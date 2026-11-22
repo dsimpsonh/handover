@@ -4,7 +4,13 @@ From: HANDOVER tech thread (Cowork) · 10 Nov 2026 · drop r10 (Cloudflare site 
 Code: `/Users/dian/Sites/handover/` · repo `github.com/dsimpsonh/handover` · live at handover.dianasimpsonhernandez.com
 Owner: DiSH Creative Ltd · product by Diana Simpson Hernandez
 
-## ▶ r11 — commit at Diana's next push sitting (11 Nov 2026)
+## ▶ r12 — commit at Diana's next push sitting (no hurry; tool only, site unchanged)
+- `site-worker/parity.py`: the not-found page is now checked by asking both sites for an address that does not exist (both must answer 404 with `404.html`). Asking for `/404.html` directly cannot match: Cloudflare Pages redirects it.
+- Files: `site-worker/parity.py`, `HANDOFF_DSH_WEBSITE_THREAD.md`, `MANIFEST.sha256`.
+
+Commit message: `HANDOVER r12: parity check tests the not-found page by a missing address`
+
+## r11 — pushed def302b (11 Nov 2026)
 - New `404.html` (site "page not found" page). GitHub Pages and Cloudflare Pages both serve it for unknown addresses with status 404.
 - Why: without it, the Cloudflare Pages copy answers every unknown address with the home page and status 200. No private file was served; the status was wrong.
 - `site-worker/build.sh`: `404.html` added to the publish list (32 files).

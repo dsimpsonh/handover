@@ -3,6 +3,13 @@
 This Worker handles payment and licensing only. It never receives documents, maps or packs.
 Routes: `POST /create-checkout-session` · `GET /claim` · `POST /stripe-webhook` · `POST /unlock` · `GET /health`.
 
+## Cloudflare access from 20 Nov 2026: token path, no login
+- `deploy.sh` and `gift.sh` no longer use `wrangler login`. Each reads ONE scoped token (`handover-cf-deploy`: Workers Scripts Edit; `handover-cf-gift`: Workers KV Storage Edit) from the separate locked keychain `~/Library/Keychains/handover-deploy.keychain-db`, for one command, and locks it again. Diana types the keychain password; nothing is echoed, exported or written.
+- Run them only with every Claude Code session closed, and finish every sitting with `bash gift.sh --signout`, then the N1 v2.3 check.
+- Wrangler runs only at `wrangler@4.154.0`.
+- The "Fastest path" and step-by-step setup below are the original 10 Nov setup (login path). Do not follow their `wrangler login` lines.
+- **HS-2:** any change to `deploy.sh` or `gift.sh` is first filed as a new proposal file, with a diff and both sha256 digests, and acked before it is copied here byte for byte. Installed 20 Nov 2026: `gift.sh` 1cda28af…, `deploy.sh` b9074371… (acked 17 Nov).
+
 ## Fastest path
 1. In Stripe (live), create a **restricted key** with the permissions listed below and copy it (`rk_live_…`).
 2. In Terminal, run `cd ~/Sites/handover/worker && bash deploy.sh`. It logs you in to Cloudflare, creates the licence store, deploys, and stores the secrets through hidden prompts. It also tells you the exact webhook URL to add in Stripe.

@@ -5,6 +5,7 @@
 
 For every file in the manifest (and the folder address of every index.html) it fetches both sites and compares
 HTTP status, byte count and sha256. Prints a table; exits 1 if any row differs. Read-only, no login.
+404.html is checked by asking both sites for an address that does not exist: both must answer 404 with that page.
 """
 import hashlib, sys, urllib.request, urllib.error, pathlib, datetime
 
@@ -29,14 +30,15 @@ def main():
     paths = []
     for p in sorted(want):
         if p.startswith("_"): continue                      # _headers is configuration, not a page
-        if p.endswith("index.html"): paths.append(("/" + p[:-len("index.html")], want[p]))
+        if p == "404.html": paths.append(("/parity-check-no-such-page", want[p]))   # the not-found page: ask for an address that does not exist
+        elif p.endswith("index.html"): paths.append(("/" + p[:-len("index.html")], want[p]))
         else: paths.append(("/" + p, want[p]))
     bad = 0
     print(f"# Parity: {live}  vs  {copy}\nRun {datetime.datetime.now(datetime.timezone.utc):%Y-%m-%dT%H:%M:%SZ} · manifest {man.name} ({len(want)} files) · {len(paths)} addresses\n")
     print("| Address | Live status | Copy status | Live bytes | Copy bytes | sha256 (live) | Same as copy | Same as commit |\n|---|---|---|---|---|---|---|---|")
     for p, h in paths:
         a, b = get(live + p), get(copy + p)
-        same = a == b and a[0] == 200
+        same = a == b and a[0] == (404 if p == "/parity-check-no-such-page" else 200)
         commit = (a[2] == h, b[2] == h)
         ok = same and all(commit)
         bad += 0 if ok else 1

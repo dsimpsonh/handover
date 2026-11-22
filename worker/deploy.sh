@@ -1,113 +1,64 @@
 #!/usr/bin/env bash
-# HANDOVER licence service: one-command deploy to Cloudflare Workers.
-# Run from Terminal on your Mac:   cd ~/Sites/handover/worker && bash deploy.sh
-# Safe to run again: it skips anything already set up. Secrets are typed into hidden prompts, never echoed or saved.
-# It signs you out of Cloudflare when it ends, so each run asks you to log in again. Close Claude Code before running it.
+# HANDOVER licence service: deploy to Cloudflare Workers with the scoped API token (D-1).
+# PROPOSED replacement for worker/deploy.sh (v2, locked-keychain pattern) — NOT IN USE until Legal's joint ack and the tokens exist.
+# Run from Terminal on your Mac, in a card sitting:   cd ~/Sites/handover/worker && bash deploy.sh
+# No `wrangler login`, ever (card v2.3 Rule 6). The deploy token lives in the separate, locked keychain
+# ~/Library/Keychains/handover-deploy.keychain-db. In ONE line the script unlocks it (you type its password), reads the
+# token into ONE command's environment, and locks it again; an exit trap also locks it. The token is never
+# echoed, exported, written to a file or placed in shell history. Secrets and the KV store already exist;
+# this script only redeploys the code. Changing a secret is done in the Cloudflare dashboard.
 set -euo pipefail
 cd "$(dirname "$0")"
 
 say()  { printf "\n\033[1m%s\033[0m\n" "$*"; }
 fail() { printf "\n\033[31m%s\033[0m\n" "$*"; exit 1; }
+KC="$HOME/Library/Keychains/handover-deploy.keychain-db"; KC_ACCOUNT="dsimpsonh"; KC_SERVICE="handover-cf-deploy"
+kc_lock() { [ -e "$KC" ] && security lock-keychain "$KC" >/dev/null 2>&1 || true; }
+trap kc_lock EXIT
+W="npx --yes wrangler@4.154.0"
 
-# Sign-in safety (Legal & Compliance, 11 Nov 2026).
-# 1. Never start while a Claude Code session is open on this Mac.
-# 2. Always sign out of Cloudflare when this script ends, however it ends: finished, failed, Ctrl-C or closed window.
+say "1/5  Guards"
+# Never start while a Claude Code session is open on this Mac (card v2.2 rule; unchanged from the current script).
 if pgrep -x claude >/dev/null 2>&1 || pgrep -f "@anthropic-ai/claude-code" >/dev/null 2>&1; then
   fail "A Claude Code session is open on this Mac. Close it, then run this again. Nothing was done."
 fi
-signout_on_exit() {
-  rc=$?; trap - EXIT INT TERM HUP
-  say "Signing out of Cloudflare"
-  if bash ./gift.sh --signout; then :; else
-    printf "\n\033[31m%s\033[0m\n" "NOT SIGNED OUT. Run:  bash gift.sh --signout"
-    [ "$rc" -ne 0 ] || rc=1
-  fi
-  exit "$rc"
-}
-trap signout_on_exit EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
-trap 'exit 129' HUP
+# No Cloudflare OAuth login may exist: the token path replaces it. Same three paths N1 checks (wrangler-cfg).
+for f in "$HOME/Library/Preferences/.wrangler/config/default.toml" "$HOME/.config/.wrangler/config/default.toml" "$HOME/.wrangler/config/default.toml"; do
+  [ ! -e "$f" ] || fail "A Cloudflare login file exists ($f). Run  bash gift.sh --signout  first. Nothing was done."
+done
+# No Cloudflare token may already sit in this shell's environment (N1 cf-env must read 0 before and after).
+[ -z "${CLOUDFLARE_API_TOKEN:-}${CF_API_TOKEN:-}" ] || fail "A Cloudflare token is set in this shell. Close this Terminal window and open a new one. Nothing was done."
+# The token keychain and the deploy item must exist. Presence only (attributes); the value is not read here.
+[ -e "$KC" ] || fail "The HANDOVER token keychain does not exist yet. Follow dev-debt's token setup first. Nothing was done."
+security find-generic-password -a "$KC_ACCOUNT" -s "$KC_SERVICE" "$KC" >/dev/null 2>&1 \
+  || fail "The deploy token is not in the keychain (service $KC_SERVICE). Follow dev-debt's token steps first. Nothing was done."
 
-say "1/6  Checking Node.js"
-command -v node >/dev/null || fail "Node.js is not installed. Install it with:  brew install node   (or from nodejs.org), then run this again."
+say "2/5  Checking Node.js and files"
+command -v node >/dev/null || fail "Node.js is not installed. Install it with:  brew install node, then run this again."
 NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]')
 [ "$NODE_MAJOR" -ge 20 ] || fail "Node $NODE_MAJOR is too old; Wrangler needs Node 20+.  brew upgrade node"
-W="npx --yes wrangler@4.154.0"
-[ -f ../private/fragments.json ] || fail "../private/fragments.json is missing; the service bundles it. Restore it from the tech thread before deploying."
+[ -f ../private/fragments.json ] || fail "../private/fragments.json is missing; the service bundles it. Nothing was done."
+grep -q 'REPLACE_WITH_KV_NAMESPACE_ID' wrangler.toml && fail "wrangler.toml has no KV id. This script does not create stores. Nothing was done."
 
-say "2/6  Cloudflare account (HANDOVER must deploy to the DiSH Creative account and no other)"
-if grep -qE '^account_id *= *"[0-9a-f]{32}"' wrangler.toml; then
-  echo "Pinned to account $(grep -oE '[0-9a-f]{32}' <<<"$(grep '^account_id' wrangler.toml)")."
-  $W whoami 2>/dev/null | grep -qi "logged in" || $W login
-else
-  if $W whoami 2>/dev/null | grep -qi "logged in"; then
-    echo "Wrangler is already logged in to:"; $W whoami 2>/dev/null | grep -iE "email|account" || true
-    read -r -p "Is this the DiSH Creative / HANDOVER account? Type yes to continue, anything else to log out and switch: " OK
-    if [ "$OK" != "yes" ]; then $W logout; $W login; fi
-  else
-    $W login
-  fi
-  WHO=$($W whoami 2>/dev/null)
-  echo "$WHO" | grep -iE "email|account" || true
-  IDS=$(printf "%s" "$WHO" | grep -oE '[0-9a-f]{32}' | sort -u)
-  if [ "$(printf "%s\n" "$IDS" | grep -c .)" = "1" ]; then ACC="$IDS"
-  else read -r -p "Paste the Account ID of the DiSH Creative account from the list above: " ACC; fi
-  [[ "$ACC" =~ ^[0-9a-f]{32}$ ]] || fail "That is not a Cloudflare Account ID."
-  read -r -p "Deploy HANDOVER to account $ACC? Type yes: " OK
-  [ "$OK" = "yes" ] || fail "Stopped. Nothing was deployed."
-  awk -v acc="$ACC" '{print} /^main = /{print "account_id = \"" acc "\""}' wrangler.toml > wrangler.toml.tmp && mv wrangler.toml.tmp wrangler.toml
-  echo "Pinned: every future deploy goes to $ACC only."
-fi
+say "3/5  Cloudflare account (DiSH Creative only)"
+ACC=$(grep -E '^account_id *= *"[0-9a-f]{32}"' wrangler.toml | grep -oE '[0-9a-f]{32}' || true)
+[ "$ACC" = "0efcbfb2427e282f755a74ce17b995d4" ] || fail "wrangler.toml is not pinned to the DiSH Creative account. Nothing was done."
+echo "Pinned to account $ACC."
 
-say "3/6  Licence store (Cloudflare KV)"
-if grep -q 'REPLACE_WITH_KV_NAMESPACE_ID' wrangler.toml; then
-  OUT=$($W kv namespace create LICENCES --binding LICENCES </dev/null 2>&1) || { echo "$OUT"; fail "Could not create the KV namespace."; }
-  KV_ID=$(printf "%s" "$OUT" | grep -oE '"?id"?[ =:]+"?[0-9a-f]{32}' | grep -oE '[0-9a-f]{32}' | head -1)
-  [ -n "$KV_ID" ] || { echo "$OUT"; fail "Could not read the new namespace id from Wrangler's output."; }
-  sed -i.bak "s/REPLACE_WITH_KV_NAMESPACE_ID/$KV_ID/" wrangler.toml && rm -f wrangler.toml.bak
-  echo "Created LICENCES store: $KV_ID (saved in wrangler.toml)"
-else
-  echo "LICENCES store already configured."
-fi
-
-say "4/6  Deploying the service"
-DEPLOY_OUT=$($W deploy </dev/null 2>&1) || { echo "$DEPLOY_OUT"; fail "Deploy failed (see above). If it asks you to choose a workers.dev subdomain, run  npx wrangler@4.154.0 deploy  once on its own, answer the question, then run this script again."; }
+say "4/5  Deploying the service"
+# Unlock -> ONE command with the token in its own environment -> lock, in one line. Output is captured; Wrangler does not print the token.
+echo "Unlock the HANDOVER token keychain (type its password):"
+RC=0; security unlock-keychain "$KC" && { DEPLOY_OUT=$(CLOUDFLARE_ACCOUNT_ID="$ACC" CLOUDFLARE_API_TOKEN="$(security find-generic-password -a "$KC_ACCOUNT" -s "$KC_SERVICE" -w "$KC")" $W deploy </dev/null 2>&1) || RC=$?; } || RC=$?; kc_lock
+[ "$RC" -eq 0 ] || { echo "${DEPLOY_OUT:-}" | tail -15; fail "Deploy failed or the keychain was not unlocked (see above). If it names a missing permission, send that line to HANDOVER tech. Do not widen the token yourself, and do not log in instead."; }
 echo "$DEPLOY_OUT" | tail -5
 URL=$(printf "%s" "$DEPLOY_OUT" | grep -oE 'https://[a-z0-9.-]+\.workers\.dev' | head -1)
-[ -n "$URL" ] || fail "Deployed, but could not read the service address. Find it in the Cloudflare dashboard under Workers."
+[ -n "$URL" ] || URL="https://handover-api.dish-creative.workers.dev"
 
-say "5/6  Secrets (typed into hidden prompts)"
-SECRETS=$($W secret list 2>/dev/null || true)
-if ! printf "%s" "$SECRETS" | grep -q LICENCE_SECRET; then
-  openssl rand -hex 32 | $W secret put LICENCE_SECRET >/dev/null
-  echo "LICENCE_SECRET generated and stored. Never change it: existing keys are derived from it."
-else echo "LICENCE_SECRET already set (kept)."; fi
-if ! printf "%s" "$SECRETS" | grep -q STRIPE_SECRET_KEY; then
-  echo "Paste your Stripe RESTRICTED key (rk_live_…) and press Enter. Nothing will show as you paste:"
-  $W secret put STRIPE_SECRET_KEY
-else echo "STRIPE_SECRET_KEY already set (to replace it: $W secret put STRIPE_SECRET_KEY)."; fi
-if ! printf "%s" "$SECRETS" | grep -q STRIPE_WEBHOOK_SECRET; then
-  cat <<EOF
-
-Now add the webhook in Stripe:
-  Developers → Webhooks → Add destination
-  Events: checkout.session.completed  and  checkout.session.async_payment_succeeded
-  Endpoint URL:  $URL/stripe-webhook
-Then copy its signing secret (whsec_…).
-EOF
-  echo "Paste the signing secret (whsec_…) and press Enter. Nothing will show as you paste:"
-  $W secret put STRIPE_WEBHOOK_SECRET
-else echo "STRIPE_WEBHOOK_SECRET already set."; fi
-
-say "6/6  Health check"
+say "5/5  Health check"
 sleep 3
 curl -fsS "$URL/health" && echo
-cat <<EOF
+cat <<'EOF2'
 
-Done. Send the tech thread this address (it is not secret):
-
-    $URL
-
-Webhook endpoint (for reference):  $URL/stripe-webhook
-EOF
+Done. No Cloudflare login was used and none is left behind. The token keychain is locked.
+Now close the sitting: bash /Users/dian/Documents/Claude/Projects/Aletheai_Global/01_Engine_Engineering/dev_debt/RUN_N1_V2_3_FROM_SIGNED_CARD.sh sitting. Paste its N1 line and RESULT file name to HANDOVER tech and dev-debt.
+EOF2
